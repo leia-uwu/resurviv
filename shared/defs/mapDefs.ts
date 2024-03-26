@@ -59,6 +59,7 @@ export interface MapDef {
             grass: number
             underground: number
             playerSubmerge: number
+            playerGhillie: number
         }
         valueAdjust: number
         sound: {

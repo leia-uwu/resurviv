@@ -133,6 +133,55 @@ export class WeaponManager {
         this.player.doAction(this.activeWeapon, GameConfig.Action.Reload, duration);
     }
 
+    dropGun(weapIdx: number, switchToMelee = true): void {
+        const weaponDef = GameObjectDefs[this.weapons[weapIdx].type] as GunDef;
+        const weaponAmmoType = weaponDef.ammo;
+        const weaponAmmoCount = this.weapons[weapIdx].ammo;
+
+        let item = this.weapons[weapIdx].type;
+        this.weapons[weapIdx].type = "";
+        this.weapons[weapIdx].ammo = 0;
+        this.weapons[weapIdx].cooldown = 0;
+        if (this.curWeapIdx == weapIdx && switchToMelee) {
+            this.curWeapIdx = GameConfig.WeaponSlot.Melee;
+        }
+
+        const backpackLevel = this.player.getGearLevel(this.player.backpack);
+        const bagSpace = GameConfig.bagSizes[weaponAmmoType][backpackLevel];
+        let amountToDrop = 0;
+        if (this.player.inventory[weaponAmmoType] + weaponAmmoCount <= bagSpace) {
+            this.player.inventory[weaponAmmoType] += weaponAmmoCount;
+            this.player.dirty.inventory = true;
+        } else {
+            const spaceLeft = bagSpace - this.player.inventory[weaponAmmoType];
+            const amountToAdd = spaceLeft;
+
+            this.player.inventory[weaponAmmoType] += amountToAdd;
+            this.player.dirty.inventory = true;
+            amountToDrop = weaponAmmoCount - amountToAdd;
+        }
+
+        if (weaponDef.isDual) {
+            item = item.replace("_dual", "");
+            this.player.game.lootBarn.addLoot(item, this.player.pos, this.player.layer, 0, true);
+        }
+        this.player.game.lootBarn.addLoot(item, this.player.pos, this.player.layer, amountToDrop, true);
+        this.player.dirty.weapons = true;
+        if (weapIdx === this.curWeapIdx) this.player.setDirty();
+    }
+
+    dropMelee(): void {
+        const slot = GameConfig.WeaponSlot.Melee;
+        if (this.weapons[slot].type != "fists") {
+            this.player.game.lootBarn.addLoot(this.weapons[slot].type, this.player.pos, this.player.layer, 1);
+            this.weapons[slot].type = "fists";
+            this.weapons[slot].ammo = 0;
+            this.weapons[slot].cooldown = 0;
+            this.player.dirty.weapons = true;
+            if (slot === this.curWeapIdx) this.player.setDirty();
+        }
+    }
+
     offHand = false;
 
     fireWeapon(skipDelayCheck = false) {

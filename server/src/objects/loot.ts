@@ -25,9 +25,9 @@ export class LootBarn {
     }
 
     /**
-    * spawns gun loot without ammo attached, use addLoot() if you want the respective ammo to drop alongside the gun
+    * spawns loot without ammo attached, use addLoot() if you want the respective ammo to drop alongside the gun
     */
-    addGun(type: string, pos: Vec2, layer: number, count: number) {
+    addLootWithoutAmmo(type: string, pos: Vec2, layer: number, count: number) {
         const loot = new Loot(this.game, type, pos, layer, count);
         this.game.grid.addObject(loot);
     }
@@ -40,6 +40,7 @@ export class LootBarn {
 
         if (def.type === "gun" && GameObjectDefs[def.ammo]) {
             const ammoCount = useCountForAmmo ? count : def.ammoSpawnCount;
+            if (ammoCount <= 0) return;
             const halfAmmo = Math.ceil(ammoCount / 2);
 
             const leftAmmo = new Loot(this.game, def.ammo, v2.add(pos, v2.create(-0.2, -0.2)), layer, halfAmmo, 0);

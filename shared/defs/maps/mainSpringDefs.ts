@@ -16,7 +16,8 @@ const mapDef = {
             riverbank: 9079434,
             grass: 6066442,
             underground: 1772803,
-            playerSubmerge: 2854052
+            playerSubmerge: 2854052,
+            playerGhillie: 4285194
         },
         sound: { riverShore: "stone" },
         particles: { camera: "falling_leaf_spring" }

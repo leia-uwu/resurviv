@@ -396,8 +396,10 @@ setSerializeFns(
 
         s.writeBoolean(data.hasPerks);
         if (data.hasPerks) {
-            s.writeBits(data.perks.length, 3);
-            for (const perk of data.perks) {
+            const perkAmount = math.min(data.perks.length, Constants.MaxPerks - 1);
+            s.writeBits(perkAmount, 3);
+            for (let i = 0; i < perkAmount; i++) {
+                const perk = data.perks[i];
                 s.writeGameType(perk.type);
                 s.writeBoolean(perk.droppable);
             }

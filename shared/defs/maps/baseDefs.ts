@@ -31,7 +31,8 @@ export const Main: MapDef = {
             riverbank: 9461284,
             grass: 8433481,
             underground: 1772803,
-            playerSubmerge: 2854052
+            playerSubmerge: 2854052,
+            playerGhillie: 8630096
         },
         valueAdjust: 1,
         sound: { riverShore: "sand" },

@@ -39,7 +39,12 @@ interface ExplosionDef {
     teamDamage?: boolean
 }
 
-interface AmmoDef {
+interface BaseLootDef {
+    noDrop?: boolean
+    noDropOnDeath?: boolean
+}
+
+interface AmmoDef extends BaseLootDef {
     type: "ammo"
     name: string
     minStackSize: number
@@ -47,7 +52,7 @@ interface AmmoDef {
     hideUi?: boolean
 }
 
-interface HealDef {
+interface HealDef extends BaseLootDef {
     type: "heal"
     name: string
     useTime: number
@@ -55,44 +60,41 @@ interface HealDef {
     maxHeal: number
 }
 
-interface BoostDef {
+interface BoostDef extends BaseLootDef {
     type: "boost"
     name: string
     useTime: number
     boost: number
 }
 
-interface BackpackDef {
+interface BackpackDef extends BaseLootDef {
     type: "backpack"
     name: string
     level: number
-    noDrop?: boolean
 }
 
-interface HelmetDef {
+interface HelmetDef extends BaseLootDef {
     type: "helmet"
     name: string
     level: number
     damageReduction: number
-    noDrop?: boolean
     role?: string
 }
 
-interface ChestDef {
+interface ChestDef extends BaseLootDef {
     type: "chest"
     name: string
     level: number
     damageReduction: number
-    noDrop?: boolean
 }
 
-interface ScopeDef {
+interface ScopeDef extends BaseLootDef {
     type: "scope"
     name: string
     level: number
 }
 
-interface GunDef {
+interface GunDef extends BaseLootDef {
     name: string
     type: "gun"
     quality: number
@@ -128,7 +130,6 @@ interface GunDef {
     outsideOnly?: boolean
     ignoreEndlessAmmo?: boolean
     noPotatoSwap?: boolean
-    noDrop?: boolean
     noDropOnDeath?: boolean
     speed: {
         equip: number
@@ -136,7 +137,7 @@ interface GunDef {
     }
 }
 
-interface MeleeDef {
+interface MeleeDef extends BaseLootDef {
     type: "melee"
     name: string
     quality: number
@@ -149,7 +150,6 @@ interface MeleeDef {
     armorPiercing?: boolean
     stonePiercing?: boolean
     noDropOnDeath?: boolean
-    noDrop?: boolean
     noPotatoSwap?: boolean
     wallCheck?: boolean
     attack: {
@@ -180,19 +180,18 @@ interface MeleeDef {
     }
 }
 
-interface OutfitDef {
+interface OutfitDef extends BaseLootDef {
     type: "outfit"
     name: string
-    noDropOnDeath?: boolean
     obstacleType?: string
 }
 
-interface PerkDef {
+interface PerkDef extends BaseLootDef {
     type: "perk"
     name: string
 }
 
-interface PingDef {
+interface PingDef extends BaseLootDef {
     type: "ping"
     pingMap: boolean
     pingLife: number
@@ -201,7 +200,7 @@ interface PingDef {
     worldDisplay: number
 }
 
-interface RoleDef {
+interface RoleDef extends BaseLootDef {
     type: "role"
     announce: boolean
     killFeed: {
@@ -211,7 +210,7 @@ interface RoleDef {
     perks: string[]
 }
 
-interface ThrowableDef {
+interface ThrowableDef extends BaseLootDef {
     type: "throwable"
     name: string
     quality: number
@@ -225,7 +224,6 @@ interface ThrowableDef {
     rad: number
     noPotatoSwap?: boolean
     noDropOnDeath?: boolean
-    noDrop?: boolean
     throwPhysics: {
         playerVelMult: number
         velZ: number
@@ -240,7 +238,7 @@ interface ThrowableDef {
     }
 }
 
-interface XPDef {
+interface XPDef extends BaseLootDef {
     type: "xp"
     name: string
     xp: number

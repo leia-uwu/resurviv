@@ -25,7 +25,8 @@ const mapDef = {
             riverbank: 10711321,
             grass: 6460706,
             underground: 1772803,
-            playerSubmerge: 2854052
+            playerSubmerge: 2854052,
+            playerGhillie: 6658085
         }
     },
     mapGen: {
