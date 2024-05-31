@@ -11,11 +11,14 @@
     "useDefineForClassFields": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "allowJs": true
+    "allowJs": true,
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment"
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.js",
-    "../shared/"
+    "../shared/",
+    "src/stats/templates/*.jsx"
   ]
 }

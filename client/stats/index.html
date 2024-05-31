@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang='en'>
+
+<head>
+  <!-- Meta Properties -->
+  <meta charset='UTF-8'>
+  <title>resurviv.io Official Statistics and Leaderboards</title>
+  <meta name="viewport"
+    content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, viewport-fit=auto, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="resurviv.io/stats">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="application-name" content="resurviv.io">
+  <meta name="description" content="resurviv.io/stats is the official home for resurviv.io statistics and leaderboards.">
+  <meta property="og:description"
+    content="resurviv.io/stats is the official home for resurviv.io statistics and leaderboards.">
+  <meta name="keywords"
+    content="survivio, surviv, 2d battle royale, battle royale browser game, 2d battlegrounds, battlegrounds, io, battleroyale, battle, royale, browser game, br, survival, game, web game, multiplayer">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="resurviv.io/stats">
+  <meta property="og:url" content="http://resurviv.io/stats/">
+  <meta property="og:site_name" content="resurviv.io stats">
+  <meta content="http://resurviv.io/stats/img/title.png" property="og:image">
+  <link rel="canonical" href="http://resurviv.io/stats" />
+  <link rel="apple-touch-icon-precomposed" href="img/icon_app.png">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <!-- Cookie consent -->
+  <script>
+    var consented = true;
+    try {
+      var cfg = JSON.parse(localStorage.getItem('surviv_config')) || {};
+      if (cfg.cookiesConsented != undefined) {
+        consented = cfg.cookiesConsented;
+      }
+    } catch (e) { }
+    window.cookiesConsented = consented;
+  </script>
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed:400,700" rel="stylesheet">
+  <link href="/css/stats.css" rel="stylesheet">
+</head>
+
+<body>
+  <div id='wrapper'>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+      <div class='container'>
+        <button class="btn btn-outline-success my-2 my-sm-0" type="button"><a class="nav-link-bright" href="/"
+            data-l10n='index-play-survivio'>Play resurviv.io!</a></button>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse ml-lg-2" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item m-lg-auto m-1">
+              <a class="nav-link-bright" href="/stats" data-l10n='index-leaderboards'>Leaderboards</a>
+            </li>
+            <li class='nav-item my-profile m-lg-auto m-1'>
+              <a id="my-profile" class="nav-link-bright" href="/stats" data-l10n='index-my-stats'>My Stats</a>
+            </li>
+          </ul>
+          <ul class="navbar-nav ml-auto mr-1">
+            <li id='language-select' class="nav-item dropdown">
+            </li>
+          </ul>
+          <form id="search-players" class="form-inline my-2 my-lg-0">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search Players" aria-label="Search"
+              data-l10n='index-search-players'>
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit" data-l10n='index-go'>Go</button>
+          </form>
+        </div>
+      </div>
+    </nav>
+    <div id='contentMain'>
+      <!-- Background -->
+      <div id='leaderboard-bg' class='stats-bg'></div>
+
+    </div>
+
+    <div id='adsPlayerTop'>
+      <div id='ad-block-top' class='container mt-3'>
+        <div class='ad-block-top-leaderboard'>
+          <!-- Tag ID: survivio_728x90_playerprofile -->
+          <div align="center" id="survivio_728x90_playerprofile_top">
+          </div>
+        </div>
+
+        <div class='ad-block-top-med-rect'>
+          <!-- Tag ID: survivio_300x250_playerprofile -->
+          <div align="center" id="survivio_300x250_playerprofile_top">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id='content'></div>
+  </div>
+
+  <!-- <div id='footer' class='footer'>
+    <div class='container'>
+      <div class='row'>
+        <div id='footer-copyright' class='col-lg-8 col-12'>© 2020 resurviv.io.</div>
+        <div class='col-lg-4 col-12'>
+          <div id='footer-social-links'>
+            <a href='https://facebook.com/resurvivio' target='_blank' class='btn-social btn-darken btn-facebook'></a>
+            <a href='https://twitter.com/resurvivio' target='_blank' class='btn-social btn-darken btn-twitter'></a>
+            <a href='https://reddit.com/r/resurvivio' target='_blank' class='btn-social btn-darken btn-reddit'></a>
+            <a href='https://discord.gg/resurvivio' target='_blank' class='btn-social btn-darken btn-discord'></a>
+            <a href='https://www.youtube.com/c/resurvivio?sub_confirmation=1' target='_blank'
+              class='btn-social btn-darken btn-youtube'></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> -->
+  </div>
+
+  <script type="module" src="../src/stats/main.js"></script>
+</html>

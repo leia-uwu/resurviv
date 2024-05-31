@@ -10,7 +10,9 @@
     "base64-js": "^1.5.1",
     "bit-buffer": "^0.2.5",
     "jquery": "^3.7.1",
-    "pixi.js-legacy": "^7.4.2"
+    "jsx-dom": "^8.1.4",
+    "pixi.js-legacy": "^7.4.2",
+    "slugify": "^1.6.6"
   },
   "devDependencies": {
     "@types/jquery": "^3.5.30",

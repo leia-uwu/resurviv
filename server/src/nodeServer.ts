@@ -8,7 +8,6 @@ import {
     type TemplatedApp
 } from "uWebSockets.js";
 import NanoTimer from "nanotimer";
-
 import { URLSearchParams } from "node:url";
 import { AbstractServer, type PlayerContainer } from "./abstractServer";
 
@@ -115,6 +114,20 @@ class NodeServer extends AbstractServer {
             }, () => {
                 this.logger.warn("/api/find_game: Error retrieving body");
             });
+        });
+        app.post("/api/match_history", async(res) => {
+            res.writeHeader("Content-Type", "application/json");
+            res.end(JSON.stringify(this.getMatchHistory()));
+        });
+
+        app.post("/api/user_stats", async(res) => {
+            res.writeHeader("Content-Type", "application/json");
+            res.end(JSON.stringify(this.getUserStats()));
+        });
+
+        app.post("/api/leaderboard", async(res) => {
+            res.writeHeader("Content-Type", "application/json");
+            res.end(JSON.stringify(this.getLeaderboard()));
         });
 
         const This = this;

@@ -24,6 +24,10 @@ const proxyConfig: Record<string, ProxyOptions> = {
 
 export default defineConfig(() => {
     return {
+        esbuild: {
+            jsxFactory: 'h',
+            jsxFragment: 'Fragment'
+        },
         plugins: [
             splitVendorChunkPlugin()
         ],

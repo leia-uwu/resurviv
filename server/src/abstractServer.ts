@@ -89,6 +89,85 @@ export abstract class AbstractServer {
         return { err: "" };
     }
 
+    getMatchHistory() {
+        return Array.from({ length: 10 }, (_, i) => ({
+            guid: "85d16fd3-be8f-913b-09ce-4ba5c86482aa",
+            region: "na",
+            map_id: 2,
+            team_mode: 2,
+            team_count: 1,
+            team_total: 13,
+            end_time: "2021-11-06T05:01:34.000Z",
+            time_alive: 303,
+            rank: 1,
+            kills: 11,
+            team_kills: 11,
+            damage_dealt: 1264,
+            damage_taken: 227
+        }));
+    }
+
+    getUserStats() {
+        return {
+            slug: "olimpiq",
+            username: "olimpiq",
+            player_icon: "",
+            banned: false,
+            wins: 4994,
+            kills: 92650,
+            games: 9998,
+            kpg: "9.3",
+            modes: [
+                {
+                    teamMode: 1,
+                    games: 1190,
+                    wins: 731,
+                    kills: 10858,
+                    winPct: "61.4",
+                    mostKills: 25,
+                    mostDamage: 2120,
+                    kpg: "9.1",
+                    avgDamage: 851,
+                    avgTimeAlive: 258
+                },
+                {
+                    teamMode: 2,
+                    games: 2645,
+                    wins: 1309,
+                    kills: 21739,
+                    winPct: "49.5",
+                    mostKills: 24,
+                    mostDamage: 2893,
+                    kpg: "8.2",
+                    avgDamage: 976,
+                    avgTimeAlive: 233
+                },
+                {
+                    teamMode: 4,
+                    games: 6163,
+                    wins: 2954,
+                    kills: 60053,
+                    winPct: "47.9",
+                    mostKills: 30,
+                    mostDamage: 4575,
+                    kpg: "9.7",
+                    avgDamage: 1373,
+                    avgTimeAlive: 246
+                }
+            ]
+        };
+    }
+
+    getLeaderboard() {
+        return Array.from({ length: 100 }, (_, i) => ({
+            slug: "olimpiq",
+            username: "Olimpiq",
+            region: "eu",
+            games: 123,
+            val: 25
+        }));
+    }
+
     findGame(regionId: string) {
         let response: {
             zone: string
