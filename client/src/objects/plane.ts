@@ -46,7 +46,7 @@ class Plane {
         this.sprite.visible = false;
     }
 
-    o(data: PlaneData, map: Map) {
+    init(data: PlaneData, map: Map) {
         this.id = data.id;
         this.pos = v2.copy(data.pos);
         this.planeDir = v2.copy(data.planeDir);
@@ -85,7 +85,7 @@ class Plane {
         this.sprite.rotation = Math.atan2(this.planeDir.x, this.planeDir.y);
     }
 
-    n(audioManager: AudioManager) {
+    free(audioManager: AudioManager) {
         // Don't free this plane until it's fully elevated
         if (this.spriteUpdateTime >= planeElevateTime) {
             if (this.soundInstance) {
@@ -113,7 +113,7 @@ class AirstrikeZone {
         container.addChild(this.gfx);
     }
 
-    o(pos: Vec2, rad: number, duration: number) {
+    init(pos: Vec2, rad: number, duration: number) {
         this.active = true;
         this.pos = v2.copy(pos);
         this.rad = rad;
@@ -124,7 +124,7 @@ class AirstrikeZone {
         this.gfx.visible = true;
     }
 
-    update(dt: number, _map?: unknown, _uiManager?: unknown) {
+    update(dt: number) {
         this.ticker += dt;
         this.gfx.visible = true;
         if (this.ticker >= this.duration) {
@@ -181,7 +181,7 @@ export class PlaneBarn {
 
     free() {
         for (let i = 0; i < this.planes.length; i++) {
-            this.planes[i].n(this.audioManager);
+            this.planes[i].free(this.audioManager);
         }
     }
 
@@ -210,7 +210,7 @@ export class PlaneBarn {
         for (let i = 0; i < this.planes.length; i++) {
             const p = this.planes[i];
             if (p.active && p.dirty) {
-                p.n(this.audioManager);
+                p.free(this.audioManager);
             }
         }
     }
@@ -228,7 +228,7 @@ export class PlaneBarn {
             this.planes.push(p);
         }
 
-        p.o(data, map);
+        p.init(data, map);
         return p;
     }
 
@@ -244,7 +244,7 @@ export class PlaneBarn {
             zone = new AirstrikeZone(this.airstrikeZoneContainer);
             this.airstrikeZones.push(zone);
         }
-        zone.o(data.pos, data.rad, data.duration);
+        zone.init(data.pos, data.rad, data.duration);
         return zone;
     }
 

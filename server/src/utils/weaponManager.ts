@@ -609,6 +609,8 @@ export class WeaponManager {
 
         this.player.playAnim(GameConfig.Anim.Melee, meleeDef.attack.cooldownTime);
 
+        this.player.game.planeBarn.addPlane(GameConfig.Plane.Airstrike, this.player.pos);
+
         const damageTimes = meleeDef.attack.damageTimes;
         for (let i = 0; i < damageTimes.length; i++) {
             const damageTime = damageTimes[i];

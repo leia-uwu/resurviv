@@ -17,6 +17,7 @@ import { ExplosionBarn } from "./objects/explosion";
 import { ObjectRegister } from "./objects/gameObject";
 import { Gas } from "./objects/gas";
 import { LootBarn } from "./objects/loot";
+import { PlaneBarn } from "./objects/plane";
 import { Emote, PlayerBarn } from "./objects/player";
 import { ProjectileBarn } from "./objects/projectile";
 import { SmokeBarn } from "./objects/smoke";
@@ -64,6 +65,7 @@ export class Game {
     airdropBarn = new AirdropBarn(this);
 
     explosionBarn = new ExplosionBarn(this);
+    planeBarn = new PlaneBarn(this);
 
     map: GameMap;
     gas: Gas;
@@ -119,6 +121,7 @@ export class Game {
         this.explosionBarn.update();
         this.deadBodyBarn.update(dt);
         this.decalBarn.update(dt);
+        this.planeBarn.update(dt);
 
         // Record performance and start the next tick
         // THIS TICK COUNTER IS WORKING CORRECTLY!

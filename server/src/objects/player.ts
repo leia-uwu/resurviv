@@ -50,6 +50,7 @@ import { WeaponManager, throwableList } from "../utils/weaponManager";
 import { BaseGameObject, type DamageParams, type GameObject } from "./gameObject";
 import type { Loot } from "./loot";
 import type { Obstacle } from "./obstacle";
+import type { Plane } from "./plane";
 
 export class Emote {
     playerId: number;
@@ -594,6 +595,8 @@ export class Player extends BaseGameObject {
     }
 
     visibleObjects = new Set<GameObject>();
+    // planes already sent to client
+    planesSent = new Set<Plane>();
 
     lastInputMsg = new InputMsg();
 
@@ -1097,6 +1100,18 @@ export class Player extends BaseGameObject {
                 updateMsg.explosions.length
             );
             updateMsg.explosions = updateMsg.explosions.slice(0, 255);
+        }
+
+        const planes = this.game.planeBarn.planes;
+        for (let i = 0; i < planes.length; i++) {
+            const plane = planes[i];
+            if (
+                !this.planesSent.has(plane) &&
+                coldet.testCircleAabb(plane.pos, plane.rad, rect.min, rect.max)
+            ) {
+                updateMsg.planes.push(plane);
+                this.planesSent.add(plane);
+            }
         }
 
         msgStream.serializeMsg(MsgType.Update, updateMsg);

@@ -1,17 +1,16 @@
-import { GameConfig } from "../../../shared/gameConfig";
+import { GameConfig, GasMode } from "../../../shared/gameConfig";
 import { math } from "../../../shared/utils/math";
 import { util } from "../../../shared/utils/util";
 import { type Vec2, v2 } from "./../../../shared/utils/v2";
 
-const GasMode = GameConfig.GasMode;
 export class Gas {
     /**
      * Current gas mode
-     * 0: Inactive: The gas is not active, used when only a single player is on the lobby
-     * 1: Waiting: The Gas has started and is waiting to advance to the next stage
-     * 2: Moving: The gas is moving between one stage and another
+     * Inactive: The gas is not active, used when only a single player is on the lobby
+     * Waiting: The Gas has started and is waiting to advance to the next stage
+     * Moving: The gas is moving between one stage and another
      */
-    mode: number = GasMode.Inactive;
+    mode = GasMode.Inactive;
 
     /**
      * Current gas stage used to track the gas damage from `GameConfig.gas.damage`

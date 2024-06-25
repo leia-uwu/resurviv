@@ -455,7 +455,7 @@ export class UpdateMsg extends AbstractMsg {
                 const plane = this.planes[i];
 
                 s.writeUint8(plane.id);
-                s.writeVec(plane.pos, 0, 0, 2048, 2048, 10);
+                s.writeVec(v2.add(plane.pos, v2.create(512, 512)), 0, 0, 2048, 2048, 10);
                 s.writeUnitVec(plane.planeDir, 8);
                 s.writeBoolean(plane.actionComplete);
                 s.writeBits(plane.action, 3);
