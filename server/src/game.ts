@@ -119,6 +119,7 @@ export class Game {
         this.bulletBarn.update(dt);
         this.projectileBarn.update(dt);
         this.explosionBarn.update();
+        this.airdropBarn.update(dt);
         this.deadBodyBarn.update(dt);
         this.decalBarn.update(dt);
         this.planeBarn.update(dt);
@@ -149,6 +150,7 @@ export class Game {
         //
         this.playerBarn.flush();
         this.bulletBarn.flush();
+        this.airdropBarn.flush();
         this.objectRegister.flush();
         this.explosionBarn.flush();
         this.gas.flush();

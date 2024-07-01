@@ -110,6 +110,12 @@ export class BullletBarn {
         const bullet = new Bullet(this, params);
         this.bullets.push(bullet);
         this.newBullets.push(bullet);
+
+        const bulletDef = GameObjectDefs[params.bulletType] as BulletDef;
+        if (bulletDef.addFlare) {
+            this.game.airdropBarn.addAirdrop(params.pos);
+        }
+
         return bullet;
     }
 }

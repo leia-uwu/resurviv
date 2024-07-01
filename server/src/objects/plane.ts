@@ -1,3 +1,5 @@
+import { GameObjectDefs } from "../../../shared/defs/gameObjectDefs";
+import type { ThrowableDef } from "../../../shared/defs/gameObjects/throwableDefs";
 import { GameConfig } from "../../../shared/gameConfig";
 import { type Vec2, v2 } from "../../../shared/utils/v2";
 import type { Game } from "../game";
@@ -15,9 +17,9 @@ export class PlaneBarn {
         }
     }
 
-    addPlane(action: number, targetPos: Vec2) {
+    addPlane(action: number, targetPos: Vec2, dir?: Vec2) {
         const len = v2.length(targetPos);
-        const dir = len > 0.00001 ? v2.div(targetPos, len) : v2.create(1, 0);
+        dir = dir ?? len > 0.00001 ? v2.div(targetPos, len) : v2.create(1, 0);
         const plane = new Plane(
             this.game,
             action,
@@ -37,9 +39,11 @@ export class Plane {
     action: number;
     id: number;
     planeDir: Vec2;
-    actionComplete = false;
     config: typeof GameConfig.airdrop | typeof GameConfig.airstrike;
     rad: number;
+
+    actionComplete = false;
+    bombCount = 0;
 
     constructor(
         game: Game,
@@ -70,17 +74,16 @@ export class Plane {
             case GameConfig.Plane.Airstrike:
                 {
                     const config = this.config as typeof GameConfig.airstrike;
-                    if (
-                        !this.actionComplete &&
-                        v2.distance(this.pos, this.targetPos) < 5
-                    ) {
+                    if (v2.distance(this.pos, this.targetPos) < 10) {
                         this.actionComplete = true;
 
-                        for (let i = 0; i < config.bombCount; i++) {
+                        if (this.bombCount < config.bombCount) {
+                            this.bombCount++;
                             const pos = v2.add(
                                 this.pos,
                                 v2.mul(v2.randomUnit(), config.bombJitter)
                             );
+                            const bombDef = GameObjectDefs["bomb_iron"] as ThrowableDef;
                             this.game.projectileBarn.addProjectile(
                                 0,
                                 "bomb_iron",
@@ -88,7 +91,7 @@ export class Plane {
                                 5,
                                 0,
                                 v2.mul(v2.randomUnit(), config.bombVel),
-                                4,
+                                bombDef.fuseTime,
                                 GameConfig.DamageType.Airstrike
                             );
                         }
