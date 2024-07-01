@@ -241,17 +241,17 @@ export class Structure implements AbstractObject {
     }
 
     render(_camera: Camera, debug: DebugOptions, _layer: number) {
-        if (device.debug && debug.structures) {
-            if (debug.structures.bounds) {
+        if (device.debug) {
+            if (debug.structures?.bounds) {
                 renderMapBuildingBounds(this);
             }
-            if (debug.structures.bridge) {
+            if (debug?.bridge) {
                 renderBridge(this);
             }
-            if (debug.structures.waterEdge) {
+            if (debug.structures?.waterEdge) {
                 renderWaterEdge(this);
             }
-            if (debug.structures.stairs) {
+            if (debug.structures?.stairs) {
                 for (let i = 0; i < this.stairs.length; i++) {
                     debugLines.addCollider(this.stairs[i].downAabb, 0x0000ff, 0);
                     debugLines.addCollider(this.stairs[i].upAabb, 0x00ff00, 0);

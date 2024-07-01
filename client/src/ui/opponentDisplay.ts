@@ -13,7 +13,7 @@ import { Camera } from "../camera";
 import type { ConfigManager } from "../config";
 import { debugLines } from "../debugLines";
 import { device } from "../device";
-import type { Game } from "../game";
+import type { DebugOptions, Game } from "../game";
 import type { InputBinds } from "../inputBinds";
 import { Map } from "../map";
 import { DecalBarn } from "../objects/decal";
@@ -367,8 +367,7 @@ export class LoadoutDisplay {
     }
 
     update(dt: number, hasFocus: boolean) {
-        const debug = { render: {} };
-        // debug.render = debug.render || {};
+        const debug: DebugOptions = {};
 
         // Camera
         this.camera.pos = v2.sub(this.activePlayer.pos, this.cameraOffset);
@@ -459,7 +458,7 @@ export class LoadoutDisplay {
         this.render(dt, debug);
     }
 
-    render(_dt: number, debug: unknown) {
+    render(_dt: number, debug: DebugOptions) {
         const grassColor = this.map.mapLoaded
             ? this.map.getMapDef().biome.colors.grass
             : 8433481;
@@ -470,6 +469,7 @@ export class LoadoutDisplay {
         this.playerBarn.render(this.camera, debug);
         this.map.render(this.camera);
 
+        debugLines.render(this.camera, this.debugDisplay);
         debugLines.flush();
     }
 

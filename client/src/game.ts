@@ -73,9 +73,9 @@ export interface DebugOptions {
         ceiling?: boolean;
         bounds?: boolean;
     };
+    bridge?: boolean;
     structures?: {
         bounds?: boolean;
-        bridge?: boolean;
         waterEdge?: boolean;
         stairs?: boolean;
     };

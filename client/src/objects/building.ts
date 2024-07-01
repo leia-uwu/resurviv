@@ -13,7 +13,7 @@ import { type Vec2, v2 } from "../../../shared/utils/v2";
 import type { AudioManager } from "../audioManager";
 import type { Camera } from "../camera";
 import type { SoundHandle } from "../createJS";
-import { renderMapBuildingBounds } from "../debugHelpers";
+import { renderBridge, renderMapBuildingBounds } from "../debugHelpers";
 import { debugLines } from "../debugLines";
 import { device } from "../device";
 import type { Ctx, DebugOptions } from "../game";
@@ -653,12 +653,15 @@ export class Building implements AbstractObject {
     }
 
     render(_camera: Camera, debug: DebugOptions, _layer: number) {
-        if (device.debug && debug.buildings) {
-            if (debug.buildings.bounds) {
+        if (device.debug) {
+            if (debug.buildings?.bounds) {
                 renderMapBuildingBounds(this);
             }
+            if (debug?.bridge) {
+                renderBridge(this);
+            }
 
-            if (debug.buildings.ceiling) {
+            if (debug.buildings?.ceiling) {
                 for (let i = 0; i < this.ceiling.zoomRegions.length; i++) {
                     const region = this.ceiling.zoomRegions[i];
                     if (region.zoomIn) {

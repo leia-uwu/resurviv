@@ -88,9 +88,9 @@ export class Game {
         this.gameModeIdx = Math.floor(this.teamMode / 2);
         this.isTeamMode = this.teamMode !== TeamMode.Solo;
 
-        this.grid = new Grid(1024, 1024);
-        this.objectRegister = new ObjectRegister(this.grid);
         this.map = new GameMap(this);
+        this.grid = new Grid(this.map.width, this.map.height);
+        this.objectRegister = new ObjectRegister(this.grid);
 
         this.gas = new Gas(this.map);
 

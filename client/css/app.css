@@ -314,32 +314,14 @@ a:active {
   background-color: rgba(0, 0, 0, 0.5);
   border-radius: 5px;
   box-sizing: border-box;
-  height: 250px;
+  height: 323px;
   margin-right: 30px;
   width: 300px;
 }
 
-@media (max-width: 850px),
-(max-width: 900px) and (min-resolution: 3dppx) {
-  #ad-block-left {
-    margin-right: 18px;
-    height: 165px;
-    width: 200px;
-  }
-}
-
 .ad-block-med-rect {
-  height: 250px;
-  width: 300px;
-}
-
-@media (max-width: 850px),
-(max-width: 900px) and (min-resolution: 3dppx) {
-  .ad-block-med-rect {
-    position: absolute;
-    transform: scale(0.67);
-    transform-origin: left top;
-  }
+  padding: 20px;
+  overflow-y: auto;
 }
 
 .ui-stats-adblock {
@@ -606,18 +588,15 @@ a:active {
   background-color: transparent;
 }
 
-#btns-quick-start,
 .btns-double-row {
   display: flex;
 }
 
-#btns-quick-start>button,
-.btns-double-row>button {
+.btns-double-row>a {
   display: inline-block;
 }
 
-#btns-quick-start>button:not(:last-child),
-.btns-double-row>button:not(:last-child) {
+.btns-double-row>a:not(:last-child) {
   margin-right: 4px;
 }
 
@@ -672,8 +651,8 @@ a:active {
 }
 
 .btn-special-mode {
-  -webkit-animation-duration: 4s;
-  -webkit-animation-iteration-count: infinite;
+  animation-duration: 4s;
+  animation-iteration-count: infinite;
   background-repeat: no-repeat;
   background-size: 35px;
   height: 41px;
@@ -690,9 +669,9 @@ a:active {
 }
 
 .btn-potato-mode {
-  -webkit-animation-name: potatoPulse;
-  -webkit-animation-duration: 3s;
-  -webkit-animation-iteration-count: infinite;
+  animation-name: potatoPulse;
+  animation-duration: 3s;
+  animation-iteration-count: infinite;
   background-repeat: no-repeat;
   background-size: 35px;
   background-image: url(/img/loot/loot-throwable-potato.svg);
@@ -729,9 +708,9 @@ a:active {
 }
 
 .btn-flare-mode {
-  -webkit-animation-name: flarePulse;
-  -webkit-animation-duration: 3s;
-  -webkit-animation-iteration-count: infinite;
+  animation-name: flarePulse;
+  animation-duration: 3s;
+  animation-iteration-count: infinite;
   background-repeat: no-repeat;
   background-size: 35px;
   background-image: url(/img/loot/loot-weapon-flare-gun.svg);
@@ -768,9 +747,9 @@ a:active {
 }
 
 .btn-woods-mode {
-  -webkit-animation-name: woodsPulse;
-  -webkit-animation-duration: 3s;
-  -webkit-animation-iteration-count: infinite;
+  animation-name: woodsPulse;
+  animation-duration: 3s;
+  animation-iteration-count: infinite;
   background-repeat: no-repeat;
   background-size: 35px;
   background-image: url(/img/gui/player-king-woods.svg);
@@ -807,9 +786,9 @@ a:active {
 }
 
 .btn-woods-spring-mode {
-  -webkit-animation-name: woodsSpringPulse;
-  -webkit-animation-duration: 3s;
-  -webkit-animation-iteration-count: infinite;
+  animation-name: woodsSpringPulse;
+  animation-duration: 3s;
+  animation-iteration-count: infinite;
   background-repeat: no-repeat;
   background-size: 35px;
   background-image: url(/img/gui/player-king-woods.svg);
@@ -828,7 +807,20 @@ a:active {
     height: 28px;
   }
 }
-
+@keyframes woodsSpringPulse {
+  from {
+    background-color: #17a500;
+    box-shadow: 0 0 9px #17a500;
+  }
+  50% {
+    background-color: #21e700;
+    box-shadow: 0 0 18px #21e700;
+  }
+  to {
+    background-color: #17a500;
+    box-shadow: 0 0 9px #17a500;
+  }
+}
 .btn-team-queue-woods-spring-mode {
   background-repeat: no-repeat;
   background-size: 35px;
@@ -846,9 +838,9 @@ a:active {
 }
 
 .btn-halloween-mode {
-  -webkit-animation-name: bloodPulse;
-  -webkit-animation-duration: 3s;
-  -webkit-animation-iteration-count: infinite;
+  animation-name: bloodPulse;
+  animation-duration: 3s;
+  animation-iteration-count: infinite;
   background-repeat: no-repeat;
   background-size: 35px;
   background-image: url(/img/gui/pumpkin-play.svg);
@@ -869,9 +861,9 @@ a:active {
 }
 
 .btn-faction-mode {
-  -webkit-animation-name: factionPulse;
-  -webkit-animation-duration: 4s;
-  -webkit-animation-iteration-count: infinite;
+  animation-name: factionPulse;
+  animation-duration: 4s;
+  animation-iteration-count: infinite;
   background-repeat: no-repeat;
   background-size: 35px;
   background-image: url(/img/gui/star.svg);
@@ -907,9 +899,9 @@ a:active {
 }
 
 .btn-savannah-mode {
-  -webkit-animation-name: savannahPulse;
-  -webkit-animation-duration: 4s;
-  -webkit-animation-iteration-count: infinite;
+  animation-name: savannahPulse;
+  animation-duration: 4s;
+  animation-iteration-count: infinite;
   background-repeat: no-repeat;
   background-size: 35px;
   background-image: url(/img/gui/player-the-hunted.svg);
@@ -946,8 +938,8 @@ a:active {
 
 .btn-custom-mode-main {
   text-indent: 18px;
-  -webkit-animation-duration: 3s;
-  -webkit-animation-iteration-count: infinite;
+  animation-duration: 3s;
+  animation-iteration-count: infinite;
   background-repeat: no-repeat;
   background-size: 35px;
   height: 41px;
@@ -966,8 +958,8 @@ a:active {
 
 .btn-custom-mode-main {
   text-indent: 18px;
-  -webkit-animation-duration: 3s;
-  -webkit-animation-iteration-count: infinite;
+  animation-duration: 3s;
+  animation-iteration-count: infinite;
   background-repeat: no-repeat;
   background-size: 35px;
   height: 41px;
@@ -985,8 +977,8 @@ a:active {
 }
 
 .btn-custom-mode-no-indent {
-  -webkit-animation-duration: 3s;
-  -webkit-animation-iteration-count: infinite;
+  animation-duration: 3s;
+  animation-iteration-count: infinite;
   background-repeat: no-repeat;
   background-size: 35px;
   height: 41px;
@@ -2003,8 +1995,6 @@ a:active {
   z-index: 4;
 }
 
-#modal-item-confirm {}
-
 #modal-item-confirm a {
   text-decoration: underline;
   color: #000;
@@ -2115,8 +2105,8 @@ a:active {
   right: 0;
   bottom: 0;
   height: 100%;
-  -webkit-animation-name: slideInRight;
-  -webkit-animation-duration: 0.2s;
+  animation-name: slideInRight;
+  animation-duration: 0.2s;
   animation-name: slideInRight;
   animation-duration: 0.2s;
 }
@@ -2622,9 +2612,7 @@ a:active {
 }
 
 .account-avatar-hover:hover {
-  -webkit-transition: border 100ms ease-out;
-  -moz-transition: border 100ms ease-out;
-  -o-transition: border 100ms ease-out;
+  transition: border 100ms ease-out;
   border: 2px solid #0f0;
 }
 
@@ -3233,7 +3221,7 @@ screen and (max-width: 736px) and (orientation: landscape) {
 }
 
 .btn-mode-potato {
-  -webkit-animation-name: potato-pulse;
+  animation-name: potato-pulse;
   background-image: url(/img/loot/loot-throwable-potato.svg);
   border-bottom: 4px solid #563619 !important;
   box-shadow: inset 0 -2px #563619 !important;
@@ -3245,9 +3233,37 @@ screen and (max-width: 736px) and (orientation: landscape) {
     border-bottom: 2px solid #563619 !important;
   }
 }
+@keyframes potato-pulse {
+    from {
+        background-color: #8f5827;
+        -webkit-box-shadow: 0 0 9px #8f5827;
+    }
+    50% {
+        background-color: #bc712e;
+        -webkit-box-shadow: 0 0 18px #bc712e;
+    }
+    to {
+        background-color: #8f5827;
+        -webkit-box-shadow: 0 0 9px #8f5827;
+    }
+}
+@keyframes desert-pulse {
+    from {
+        background-color: #d45500;
+        -webkit-box-shadow: 0 0 9px #d45500;
+    }
+    50% {
+        background-color: #ff5c00;
+        -webkit-box-shadow: 0 0 18px #ff5c00;
+    }
+    to {
+        background-color: #d45500;
+        -webkit-box-shadow: 0 0 9px #d45500;
+    }
+}
 
 .btn-mode-desert {
-  -webkit-animation-name: desert-pulse;
+  animation-name: desert-pulse;
   border-bottom: 4px solid #853500 !important;
   box-shadow: inset 0 -2px #853500 !important;
 }
@@ -3260,7 +3276,7 @@ screen and (max-width: 736px) and (orientation: landscape) {
 }
 
 .btn-mode-woods {
-  -webkit-animation-name: woods-pulse;
+  animation-name: woods-pulse;
   border-bottom: 4px solid #696726 !important;
   box-shadow: inset 0 -2px #696726 !important;
 }
@@ -3271,10 +3287,23 @@ screen and (max-width: 736px) and (orientation: landscape) {
     border-bottom: 2px solid #696726 !important;
   }
 }
-
+@keyframes woods-pulse {
+    from {
+        background-color: #908d2d;
+        -webkit-box-shadow: 0 0 9px #908d2d;
+    }
+    50% {
+        background-color: #cbc526;
+        -webkit-box-shadow: 0 0 18px #cbc526;
+    }
+    to {
+        background-color: #908d2d;
+        -webkit-box-shadow: 0 0 9px #908d2d;
+    }
+}
 .btn-mode-faction {
-  -webkit-animation-name: faction-pulse;
-  -webkit-animation-duration: 4s;
+  animation-name: faction-pulse;
+  animation-duration: 4s;
   border-bottom: 4px solid #00448a;
 }
 
@@ -3284,12 +3313,41 @@ screen and (max-width: 736px) and (orientation: landscape) {
     border-bottom: 2px solid #00448a;
   }
 }
-
+@keyframes faction-pulse {
+    from {
+        background-color: #007eff;
+        border-bottom-color: #00448a;
+        -webkit-box-shadow: 0 0 9px #007eff;
+    }
+    50% {
+        background-color: #c00;
+        border-bottom-color: #8d0000;
+        -webkit-box-shadow: 0 0 18px #c00;
+    }
+    to {
+        background-color: #007eff;
+        border-bottom-color: #00448a;
+        -webkit-box-shadow: 0 0 9px #007eff;
+    }
+}
 .btn-mode-savannah {
-  -webkit-animation-name: savannah-pulse;
+  animation-name: savannah-pulse;
   border-bottom: 4px solid #947c1c;
 }
-
+@keyframes savannah-pulse {
+    from {
+        background-color: #c7a726;
+        -webkit-box-shadow: 0 0 9px #c7a726;
+    }
+    50% {
+        background-color: #fbd10b;
+        -webkit-box-shadow: 0 0 18px #fbd10b;
+    }
+    to {
+        background-color: #c7a726;
+        -webkit-box-shadow: 0 0 9px #c7a726;
+    }
+}
 @media (max-width: 850px),
 (max-width: 900px) and (min-resolution: 3dppx) {
   .btn-mode-savannah {
@@ -3298,7 +3356,7 @@ screen and (max-width: 736px) and (orientation: landscape) {
 }
 
 .btn-mode-halloween {
-  -webkit-animation-name: bloodPulse;
+  animation-name: bloodPulse;
   border-bottom: 4px solid #2d0000;
 }
 
@@ -3308,9 +3366,36 @@ screen and (max-width: 736px) and (orientation: landscape) {
     border-bottom: 2px solid #2d0000;
   }
 }
-
+@keyframes bloodPulse {
+    from {
+        background-color: #500000;
+        -webkit-box-shadow: 0 0 9px #500000;
+    }
+    50% {
+        background-color: #750000;
+        -webkit-box-shadow: 0 0 18px #750000;
+    }
+    to {
+        background-color: #500000;
+        -webkit-box-shadow: 0 0 9px #500000;
+    }
+}
+@keyframes cobaltPulse {
+    from {
+        background-color: #2e3742;
+        -webkit-box-shadow: 0 0 9px #2e3742;
+    }
+    50% {
+        background-color: #4d5a68;
+        -webkit-box-shadow: 0 0 18px #4d5a68;
+    }
+    to {
+        background-color: #2e3742;
+        -webkit-box-shadow: 0 0 9px #2e3742;
+    }
+}
 .btn-mode-cobalt {
-  -webkit-animation-name: cobaltPulse;
+  animation-name: cobaltPulse;
   border-bottom: 4px solid #1d252e;
 }
 
@@ -3319,6 +3404,18 @@ screen and (max-width: 736px) and (orientation: landscape) {
   .btn-mode-cobalt {
     border-bottom: 2px solid #1d252e;
   }
+}
+
+#btns-quick-start {
+  display: flex;
+}
+
+#btns-quick-start>a {
+  display: inline-block;
+}
+
+#btns-quick-start>a:not(:last-child) {
+  margin-right: 4px;
 }
 
 .team-menu-option {
@@ -3914,23 +4011,42 @@ screen and (max-width: 736px) and (orientation: landscape) {
     transform: rotate(360deg);
   }
 }
-
+@keyframes pass-text-pulse {
+    0% {
+        color: #93ad3e;
+    }
+    100% {
+        color: #93ad3e;
+        font-size: 24px;
+        font-weight: 700;
+        right: 16px;
+        text-shadow: 2px 2px #000;
+        top: 22px;
+    }
+}
 .pass-bg-pulse {
-  -webkit-animation: pass-bg-pulse 3s alternate infinite;
+  animation: pass-bg-pulse 3s alternate infinite;
 }
 
 .pass-unlock-pulse {
-  -webkit-animation: pass-unlock-pulse 1s alternate 1;
+  animation: pass-unlock-pulse 1s alternate 1;
 }
 
 .pass-text-pulse {
-  -webkit-animation: pass-text-pulse 3s alternate infinite;
+  animation: pass-text-pulse 3s alternate infinite;
 }
 
 .pass-fade-out {
-  -webkit-animation: pass-fade-out 1s;
+  animation: pass-fade-out 1s;
 }
-
+@keyframes pass-fade-out {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
 #pass-unlock-tooltip {
   background-color: rgba(0, 0, 0, 0.95);
   border-radius: 6px;
@@ -4176,6 +4292,7 @@ screen and (max-width: 736px) and (orientation: landscape) {
   background-image: url(/img/gui/globe.svg);
   -moz-appearance: none;
   -webkit-appearance: none;
+  appearance: none;
   cursor: pointer;
 }
 
@@ -4809,6 +4926,7 @@ input [type="image"]:focus {
 
 .crosshair-slider {
   -webkit-appearance: none;
+  appearance: none;
   background: rgba(0, 0, 0, 0.75);
   border-radius: 2px;
   cursor: pointer;
@@ -5067,6 +5185,7 @@ input [type="image"]:focus {
 #modal-customize-sort {
   -moz-appearance: none;
   -webkit-appearance: none;
+  appearance: none;
   background-color: transparent;
   border: none;
   border-radius: 5px;
@@ -5512,6 +5631,7 @@ input [type="image"]:focus {
 
 .slider {
   -webkit-appearance: none;
+  appearance: none;
   cursor: inherit;
   width: 100%;
   height: 4px;
@@ -5607,13 +5727,9 @@ input [type="image"]:focus {
     background-color: #fff;
   }
 
-  #team-menu-options-queue {}
-
   .team-menu-options-buttons {
     display: flex;
   }
-
-  .team-menu-options-buttons a {}
 
   .team-menu-options-buttons a:not(:last-child) {
     margin-right: 4px;
@@ -5912,6 +6028,7 @@ input [type="image"]:focus {
     background-image: url(/img/gui/globe.svg);
     -moz-appearance: none;
     -webkit-appearance: none;
+    appearance: none;
     cursor: pointer;
   }
 
@@ -6014,8 +6131,8 @@ input [type="image"]:focus {
     width: 100%;
     height: 100%;
     overflow: auto;
-    -webkit-animation-name: fadeIn;
-    -webkit-animation-duration: 0.2s;
+    animation-name: fadeIn;
+    animation-duration: 0.2s;
     animation-name: fadeIn;
     animation-duration: 0.2s;
   }
@@ -6049,8 +6166,8 @@ input [type="image"]:focus {
     right: 0;
     bottom: 0;
     height: 100%;
-    -webkit-animation-name: slideInRight;
-    -webkit-animation-duration: 0.2s;
+    animation-name: slideInRight;
+    animation-duration: 0.2s;
     animation-name: slideInRight;
     animation-duration: 0.2s;
   }
@@ -6079,8 +6196,8 @@ input [type="image"]:focus {
     left: 0;
     bottom: 0;
     height: 100%;
-    -webkit-animation-name: slideInLeft;
-    -webkit-animation-duration: 0.2s;
+    animation-name: slideInLeft;
+    animation-duration: 0.2s;
     animation-name: slideInLeft;
     animation-duration: 0.2s;
   }
@@ -6179,6 +6296,7 @@ input [type="image"]:focus {
 
   .slider {
     -webkit-appearance: none;
+    appearance: none;
     width: 100%;
     height: 4px;
     border-radius: 2px;

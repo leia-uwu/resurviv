@@ -514,7 +514,7 @@ export class GameMap {
             for (const river of this.terrain.rivers) {
                 const amount = math.min(
                     river.waterWidth * riverObjs[type as keyof typeof riverObjs],
-                    20
+                    30
                 );
 
                 for (let i = 0; i < amount; i++) {
@@ -696,17 +696,30 @@ export class GameMap {
         }
 
         // checks for bridges and other river structures like crossing bunker
-        if (def.type === "structure") {
+        if (def.type === "structure" || def.type === "building") {
             if (def.terrain.bridge) {
                 for (let i = 0; i < this.bridges.length; i++) {
                     const otherBridge = this.bridges[i];
+                    const thisBounds = mapHelpers.getBridgeOverlapCollider(
+                        type,
+                        pos,
+                        rot,
+                        1
+                    );
                     const thatBounds = mapHelpers.getBridgeOverlapCollider(
                         otherBridge.type,
                         otherBridge.pos,
                         otherBridge.rot,
                         1
                     );
-                    if (coldet.test(boundCollider, thatBounds)) {
+                    if (
+                        coldet.testAabbAabb(
+                            thisBounds.min,
+                            thisBounds.max,
+                            thatBounds.min,
+                            thatBounds.max
+                        )
+                    ) {
                         return false;
                     }
                 }
@@ -786,6 +799,17 @@ export class GameMap {
                 if (coldet.testAabbPolygon(aabb.min, aabb.max, river.waterPoly)) {
                     return false;
                 }
+            }
+        }
+
+        if (def.terrain?.river) {
+            const inset = this.shoreInset / 2;
+            const mapBound = collider.createAabb(
+                v2.create(inset, inset),
+                v2.create(this.width - inset, this.height - inset)
+            );
+            if (!coldet.testPointAabb(pos, mapBound.min, mapBound.max)) {
+                return false;
             }
         }
 

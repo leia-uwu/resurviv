@@ -95,8 +95,8 @@ export function renderWaterEdge(mapObj: Structure) {
     }
 }
 
-export function renderBridge(mapObj: Structure) {
-    const def = MapObjectDefs[mapObj.type] as StructureDef;
+export function renderBridge(mapObj: Building | Structure) {
+    const def = MapObjectDefs[mapObj.type] as StructureDef | BuildingDef;
     if (def.terrain.bridge !== undefined) {
         const bridgeLandBounds = def.bridgeLandBounds || [];
         for (let i = 0; i < bridgeLandBounds.length; i++) {
