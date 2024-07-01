@@ -2318,8 +2318,8 @@ export class Player extends BaseGameObject {
                     amountToDrop,
                     this.dir
                 );
+
                 this.inventory[dropMsg.item] -= amountToDrop;
-                this.weapons[3].ammo -= amountToDrop;
 
                 if (this.inventory[dropMsg.item] == 0) {
                     this.weaponManager.showNextThrowable();

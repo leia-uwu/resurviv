@@ -146,18 +146,6 @@ export class WeaponManager {
                 cooldown: 0
             });
         }
-
-        // Link the throwable slot ammo counter to the inventory ammo counter
-        const _this = this;
-        const slot = GameConfig.WeaponSlot.Throwable;
-        Object.defineProperty(this.weapons[slot], "ammo", {
-            get() {
-                return _this.player.inventory[_this.weapons[slot].type] ?? 0;
-            },
-            set(amount: number) {
-                _this.player.inventory[_this.weapons[slot].type] = amount;
-            }
-        });
     }
 
     shootStart(): void {
@@ -924,7 +912,6 @@ export class WeaponManager {
 
             if (amount != 0) {
                 this.weapons[slot].type = type;
-                this.weapons[slot].ammo = amount;
                 this.player.weapsDirty = true;
                 this.player.setDirty();
                 return;
