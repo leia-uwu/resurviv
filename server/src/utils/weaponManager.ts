@@ -161,10 +161,10 @@ export class WeaponManager {
                     this.fireWeapon();
                     break;
                 }
-                // case "throwable": {
-                //     this.cookThrowable();
-                //     break;
-                // }
+                case "throwable": {
+                    this.cookThrowable();
+                    break;
+                }
             }
         }
     }
@@ -859,6 +859,7 @@ export class WeaponManager {
 
         if (!throwableDef.explosionType) return;
 
+        // position of throwing hand
         const pos = v2.add(
             this.player.pos,
             v2.rotate(
