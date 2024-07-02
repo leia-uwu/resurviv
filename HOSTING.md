@@ -95,6 +95,22 @@ export const Config = {
 
 changing `host` to `0.0.0.0`.
 
+Navigate to line 673 on the main.ts file
+```sh
+nano +673 server/src/main.ts
+```
+```ts
+urls.push(
+                `ws${matchData.useHttps ? "s" : ""}://YOURIPADDRESS/play?gameId=${
+                    matchData.gameId
+                }`
+);
+```
+
+changing `hosts[i]` to the ip address of the computer you are hosting the game on, i.e 12.345.678.91.
+
+NOTE: this is sort of a hacky solution right now, but will be due to change in the future
+
 Build the client & server:
 ```sh
 pnpm -r build
