@@ -117,7 +117,36 @@ export class PlayerBarn {
                     if (leader) {
                         pos = this.game.map.getRandomSpawnPos(leader.pos, 5);
                     } else {
+                        let attempts = 0;
+                        let collided = true;
                         pos = this.game.map.getRandomSpawnPos();
+
+                        while (attempts++ < 200 && collided == true) {
+                            pos = this.game.map.getRandomSpawnPos();
+                            const circle = collider.createCircle(
+                                pos,
+                                GameConfig.spawnDistance
+                            );
+                            collided = false;
+                            v2.set(circle.pos, pos);
+
+                            const objs = this.game.grid.intersectCollider(circle);
+
+                            for (const obj of objs) {
+                                if (obj.layer !== 0) continue;
+                                if (
+                                    obj instanceof Player &&
+                                    coldet.test(obj.collider, circle)
+                                ) {
+                                    collided = true;
+                                    break;
+                                }
+                            }
+
+                            if (collided == false) {
+                                return pos;
+                            }
+                        }
                     }
                 }
                 break;
@@ -150,6 +179,9 @@ export class PlayerBarn {
                 this.game.started = this.game.groups.size > 1;
             }
             if (this.game.started) {
+                setTimeout(() => {
+                    this.game.gracePeriod = 0;
+                }, this.game.gracePeriod * 1000);
                 this.game.gas.advanceGasStage();
             }
         }
@@ -608,25 +640,28 @@ export class Player extends BaseGameObject {
 
         const movement = v2.create(0, 0);
 
-        if (this.lastInputMsg.touchMoveActive && this.lastInputMsg.touchMoveLen) {
-            movement.x = this.lastInputMsg.touchMoveDir.x;
-            movement.y = this.lastInputMsg.touchMoveDir.y;
-        } else {
-            if (input.moveUp) movement.y++;
-            if (input.moveDown) movement.y--;
-            if (input.moveLeft) movement.x--;
-            if (input.moveRight) movement.x++;
+        if (this.game.gracePeriod === 0) {
+            if (this.lastInputMsg.touchMoveActive && this.lastInputMsg.touchMoveLen) {
+                movement.x = this.lastInputMsg.touchMoveDir.x;
+                movement.y = this.lastInputMsg.touchMoveDir.y;
+            } else {
+                if (input.moveUp) movement.y++;
+                if (input.moveDown) movement.y--;
+                if (input.moveLeft) movement.x--;
+                if (input.moveRight) movement.x++;
 
-            if (movement.x * movement.y !== 0) {
-                // If the product is non-zero, then both of the components must be non-zero
-                movement.x *= Math.SQRT1_2;
-                movement.y *= Math.SQRT1_2;
+                if (movement.x * movement.y !== 0) {
+                    // If the product is non-zero, then both of the components must be non-zero
+                    movement.x *= Math.SQRT1_2;
+                    movement.y *= Math.SQRT1_2;
+                }
             }
         }
 
         if (this.boost > 0) {
             this.boost -= 0.375 * dt;
         }
+
         if (this.boost > 0 && this.boost <= 25) this.health += 0.5 * dt;
         else if (this.boost > 25 && this.boost <= 50) this.health += 1.25 * dt;
         else if (this.boost > 50 && this.boost <= 87.5) this.health += 1.5 * dt;

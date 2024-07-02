@@ -1,4 +1,5 @@
 import type { MapDefs } from "../../shared/defs/mapDefs";
+import { GameConfig } from "../../shared/gameConfig";
 import { DropItemMsg } from "../../shared/msgs/dropItemMsg";
 import { EmoteMsg } from "../../shared/msgs/emoteMsg";
 import { InputMsg } from "../../shared/msgs/inputMsg";
@@ -34,6 +35,7 @@ export class Game {
     started = false;
     stopped = false;
     allowJoin = true;
+    gracePeriod = GameConfig.gracePeriod;
     over = false;
     startedTime = 0;
     id: string;
@@ -81,6 +83,7 @@ export class Game {
         const start = Date.now();
 
         this.config = config;
+
         this.pluginManager.loadPlugins();
         this.pluginManager.emit(Events.Game_Created, this);
 
@@ -91,10 +94,9 @@ export class Game {
         this.map = new GameMap(this);
         this.grid = new Grid(this.map.width, this.map.height);
         this.objectRegister = new ObjectRegister(this.grid);
+        this.allowJoin = true;
 
         this.gas = new Gas(this.map);
-
-        this.allowJoin = true;
 
         this.map.init();
 
