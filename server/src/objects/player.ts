@@ -1316,11 +1316,18 @@ export class Player extends BaseGameObject {
             stats = this.group.players;
         }
 
-        const teamRank = !this.game.isTeamMode
-            ? this.game.aliveCount + 1
-            : this.game.groups.size;
+        const groupAlives = [...this.game.groups.values()].filter(
+            (group) => !group.allDeadOrDisconnected
+        );
 
-        if (this.game.isTeamMode && !targetPlayer.group!.allDeadOrDisconnected) {
+        const teamRank =
+            (!this.game.isTeamMode ? this.game.aliveCount : groupAlives.length) + 1;
+
+        if (
+            this.game.isTeamMode &&
+            !targetPlayer.group!.allDeadOrDisconnected &&
+            groupAlives.length > 1
+        ) {
             for (const stat of stats) {
                 const statsMsg = new PlayerStatsMsg();
                 statsMsg.playerStats = stat;
@@ -1404,14 +1411,25 @@ export class Player extends BaseGameObject {
                 ) {
                     player = this.killedBy;
                 } else {
-                    player = this.group.randomPlayer(this.spectating);
+                    player = this.group.randomPlayer(this);
                 }
             }
         }
 
         // loop through all of this object's spectators and change who they're spectating to the new selected player
         for (const spectator of this.spectators) {
-            spectator.spectating = player!;
+            if (
+                this.game.isTeamMode &&
+                this.game.isTeamGameOver() &&
+                this.group!.players.includes(spectator)
+            ) {
+                //inverted logic
+                //if the game is over and the spectator is on the player who died's team...
+                //then you keep them spectating their dead teammate instead of the winner...
+                //so the proper stats show in the game over msg
+            } else {
+                spectator.spectating = player!;
+            }
         }
     }
 
@@ -1434,6 +1452,9 @@ export class Player extends BaseGameObject {
             this.game.playerBarn.livingPlayers.indexOf(this),
             1
         );
+        if (this.group) {
+            this.group.checkPlayers();
+        }
 
         //
         // Send kill msg
@@ -1550,10 +1571,6 @@ export class Player extends BaseGameObject {
             ) {
                 obj.onGoreRegionKill();
             }
-        }
-
-        if (this.group) {
-            this.group.checkPlayers();
         }
 
         // Check for game over
