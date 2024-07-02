@@ -90,7 +90,7 @@ export class Projectile extends BaseGameObject {
         // Velocity
         //
         this.pos = v2.add(this.pos, v2.mul(this.vel, dt));
-        this.vel = v2.mul(this.vel, 0.96);
+        this.vel = v2.mul(this.vel, this.posZ != 0 ? 0.99 : 0.98); // decrease vel slightly faster once touching ground
 
         const def = GameObjectDefs[this.type] as ThrowableDef;
 

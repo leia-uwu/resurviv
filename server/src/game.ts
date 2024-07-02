@@ -229,6 +229,13 @@ export class Game {
         }
     }
 
+    isTeamGameOver(): boolean {
+        const groupAlives = [...this.groups.values()].filter(
+            (group) => !group.allDeadOrDisconnected
+        );
+        return groupAlives.length <= 1;
+    }
+
     checkGameOver(): void {
         if (this.over) return;
         if (!this.isTeamMode) {
