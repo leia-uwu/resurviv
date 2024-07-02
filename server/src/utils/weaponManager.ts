@@ -785,10 +785,15 @@ export class WeaponManager {
 
             const itemDef = GameObjectDefs[this.activeWeapon];
 
+            if (this._curWeapIdx != GameConfig.WeaponSlot.Throwable) {
+                this.throwThrowable();
+                return;
+            }
+
             if (
                 (itemDef.type === "throwable" &&
                     itemDef.cookable &&
-                    this.cookTicker > itemDef.fuseTime) ||
+                    this.cookTicker > itemDef.fuseTime) || // safety check
                 (!this.player.shootHold && this.cookTicker > GameConfig.player.cookTime)
             ) {
                 this.throwThrowable();
@@ -800,8 +805,10 @@ export class WeaponManager {
         if (
             this.player.animType === GameConfig.Anim.Cook ||
             this.player.animType === GameConfig.Anim.Throw
-        )
+        ) {
             return;
+        }
+        this.player.cancelAction();
         const itemDef = GameObjectDefs[this.activeWeapon];
         if (itemDef.type !== "throwable") {
             throw new Error(`Invalid throwable item: ${this.activeWeapon}`);
@@ -820,20 +827,24 @@ export class WeaponManager {
 
     throwThrowable(): void {
         this.cookingThrowable = false;
-        const throwableType = this.activeWeapon;
+        const throwableType = this.weapons[GameConfig.WeaponSlot.Throwable].type;
         const throwableDef = GameObjectDefs[throwableType];
 
-        const throwStr = this.player.toMouseLen / 15;
+        //if selected weapon slot is not throwable, that means player switched slots early and velocity needs to be 0
+        const throwStr =
+            this.curWeapIdx == GameConfig.WeaponSlot.Throwable
+                ? this.player.toMouseLen / 15
+                : 0;
 
         if (throwableDef.type !== "throwable") {
             throw new Error();
         }
 
         const weapSlotId = GameConfig.WeaponSlot.Throwable;
-        if (this.weapons[weapSlotId].ammo > 0) {
-            this.weapons[weapSlotId].ammo -= 1;
+        if (this.player.inventory[throwableType] > 0) {
+            this.player.inventory[throwableType] -= 1;
 
-            // if throwable count drops bellow 0
+            // if throwable count drops below 0
             // show the next throwable
             // if theres none switch to last weapon
             if (this.weapons[weapSlotId].ammo == 0) {
