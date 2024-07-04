@@ -11,20 +11,259 @@ import type { Game } from "../game";
 import { BaseGameObject } from "./gameObject";
 import type { Player } from "./player";
 
+interface Rect {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
+
+/**
+ * Quadtree Constructor
+ * @param bounds                 bounds of the node ({ x, y, width, height })
+ * @param [max_objects=10]     (optional) max objects a node can hold before splitting into 4 subnodes (default: 10)
+ * @param [max_levels=4]       (optional) total max levels inside root Quadtree (default: 4)
+ * @param [level=0]            (optional) depth level, required for subnodes (default: 0)
+ */
+class Quadtree {
+    objects: Loot[] = [];
+    nodes: Quadtree[] = [];
+    constructor(
+        public bounds: Rect,
+        public max_objects = 10,
+        public max_levels = 4,
+        public level = 0
+    ) {}
+
+    /**
+     * Split the node into 4 subnodes
+     */
+    split() {
+        var nextLevel = this.level + 1,
+            subWidth = this.bounds.width / 2,
+            subHeight = this.bounds.height / 2,
+            x = this.bounds.x,
+            y = this.bounds.y;
+
+        //top right node
+        this.nodes[0] = new Quadtree(
+            {
+                x: x + subWidth,
+                y: y,
+                width: subWidth,
+                height: subHeight
+            },
+            this.max_objects,
+            this.max_levels,
+            nextLevel
+        );
+
+        //top left node
+        this.nodes[1] = new Quadtree(
+            {
+                x: x,
+                y: y,
+                width: subWidth,
+                height: subHeight
+            },
+            this.max_objects,
+            this.max_levels,
+            nextLevel
+        );
+
+        //bottom left node
+        this.nodes[2] = new Quadtree(
+            {
+                x: x,
+                y: y + subHeight,
+                width: subWidth,
+                height: subHeight
+            },
+            this.max_objects,
+            this.max_levels,
+            nextLevel
+        );
+
+        //bottom right node
+        this.nodes[3] = new Quadtree(
+            {
+                x: x + subWidth,
+                y: y + subHeight,
+                width: subWidth,
+                height: subHeight
+            },
+            this.max_objects,
+            this.max_levels,
+            nextLevel
+        );
+    }
+    /**
+     * Determine which node the object belongs to
+     * @return an array of indexes of the intersecting subnodes (0-3 = top-right, top-left, bottom-left, bottom-right / ne, nw, sw, se)
+     */
+    getIndex(loot: Loot) {
+        var indexes = [],
+            verticalMidpoint = this.bounds.x + this.bounds.width / 2,
+            horizontalMidpoint = this.bounds.y + this.bounds.height / 2;
+
+        var startIsNorth = loot.pos.y < horizontalMidpoint,
+            startIsWest = loot.pos.x < verticalMidpoint,
+            endIsEast = loot.pos.x + loot.rad > verticalMidpoint,
+            endIsSouth = loot.pos.y + loot.rad > horizontalMidpoint;
+
+        //top-right quad
+        if (startIsNorth && endIsEast) {
+            indexes.push(0);
+        }
+
+        //top-left quad
+        if (startIsWest && startIsNorth) {
+            indexes.push(1);
+        }
+
+        //bottom-left quad
+        if (startIsWest && endIsSouth) {
+            indexes.push(2);
+        }
+
+        //bottom-right quad
+        if (endIsEast && endIsSouth) {
+            indexes.push(3);
+        }
+
+        return indexes;
+    }
+
+    /**
+     * Insert the object into the node. If the node
+     * exceeds the capacity, it will split and add all
+     * objects to their corresponding subnodes.
+     */
+    insert(loot: Loot) {
+        var i = 0,
+            indexes;
+
+        //if we have subnodes, call insert on matching subnodes
+        if (this.nodes.length) {
+            indexes = this.getIndex(loot);
+
+            for (i = 0; i < indexes.length; i++) {
+                this.nodes[indexes[i]].insert(loot);
+            }
+            return;
+        }
+
+        //otherwise, store object here
+        this.objects.push(loot);
+
+        //max_objects reached
+        if (this.objects.length > this.max_objects && this.level < this.max_levels) {
+            //split if we don't already have subnodes
+            if (!this.nodes.length) {
+                this.split();
+            }
+
+            //add all objects to their corresponding subnode
+            for (i = 0; i < this.objects.length; i++) {
+                indexes = this.getIndex(this.objects[i]);
+                for (var k = 0; k < indexes.length; k++) {
+                    this.nodes[indexes[k]].insert(this.objects[i]);
+                }
+            }
+
+            //clean up this node
+            this.objects = [];
+        }
+    }
+
+    /**
+     * Return all objects that could collide with the given object
+     */
+    retrieve(loot: Loot) {
+        var indexes = this.getIndex(loot),
+            returnObjects = this.objects;
+
+        //if we have subnodes, retrieve their objects
+        if (this.nodes.length) {
+            for (var i = 0; i < indexes.length; i++) {
+                returnObjects = returnObjects.concat(
+                    this.nodes[indexes[i]].retrieve(loot)
+                );
+            }
+        }
+
+        //remove duplicates
+        if (this.level === 0) {
+            return Array.from(new Set(returnObjects));
+        }
+
+        return returnObjects;
+    }
+
+    /**
+     * Clear the quadtree
+     */
+    clear() {
+        this.objects = [];
+
+        for (var i = 0; i < this.nodes.length; i++) {
+            if (this.nodes.length) {
+                this.nodes[i].clear();
+            }
+        }
+
+        this.nodes = [];
+    }
+}
+
 export class LootBarn {
     loots: Loot[] = [];
+
+    tree = new Quadtree({
+        x: 0,
+        y: 0,
+        width: 1024,
+        height: 1024
+    });
+
     constructor(public game: Game) {}
 
     update(dt: number) {
+        this.tree.clear();
+
+        // first loop
+        // add velocity to position and insert into quad tree
+        for (let i = 0; i < this.loots.length; i++) {
+            const loot = this.loots[i];
+            loot.oldPos = v2.copy(loot.pos);
+
+            const halfDt = dt / 2;
+            const calculateSafeDisplacement = (): Vec2 => {
+                let displacement = v2.mul(loot.vel, halfDt);
+                if (v2.lengthSqr(displacement) >= 10) {
+                    displacement = v2.normalizeSafe(displacement);
+                }
+
+                return displacement;
+            };
+
+            v2.set(loot.pos, v2.add(loot.pos, calculateSafeDisplacement()));
+            loot.vel = v2.mul(loot.vel, 0.93);
+            v2.set(loot.pos, v2.add(loot.pos, calculateSafeDisplacement()));
+
+            this.tree.insert(loot);
+        }
+
         const collisions: Record<string, boolean> = {};
 
+        // second loop: do collisions
         for (let i = 0; i < this.loots.length; i++) {
             const loot = this.loots[i];
             if (loot.destroyed) {
                 this.loots.splice(i, 1);
                 continue;
             }
-            loot.update(dt, collisions);
+            loot.update(dt, this.tree, collisions);
         }
     }
 
@@ -178,7 +417,7 @@ export class Loot extends BaseGameObject {
         this.push(dir ?? v2.randomUnit(), pushSpeed);
     }
 
-    update(dt: number, collisions: Record<string, boolean>): void {
+    update(dt: number, tree: Quadtree, collisions: Record<string, boolean>): void {
         if (this.ticks > 2 && !this.isOld) {
             this.isOld = true;
             this.ticks = 0;
@@ -191,21 +430,39 @@ export class Loot extends BaseGameObject {
 
         if (!moving) return;
 
-        this.oldPos = v2.copy(this.pos);
+        const loots = tree.retrieve(this);
 
-        const halfDt = dt / 2;
-        const calculateSafeDisplacement = (): Vec2 => {
-            let displacement = v2.mul(this.vel, halfDt);
-            if (v2.lengthSqr(displacement) >= 10) {
-                displacement = v2.normalizeSafe(displacement);
-            }
+        for (let i = 0; i < loots.length; i++) {
+            const loot = loots[i];
+            if (loot.__id === this.__id) continue;
+            const hash1 = `${this.__id} ${loot.__id}`;
+            const hash2 = `${loot.__id} ${this.__id}`;
+            if (collisions[hash1] || collisions[hash2]) continue;
+            if (!util.sameLayer(loot.layer, this.layer)) continue;
+            if (!util.sameLayer(loot.layer, this.layer)) continue;
 
-            return displacement;
-        };
+            const res = coldet.intersectCircleCircle(
+                this.pos,
+                this.collider.rad,
+                loot.pos,
+                loot.collider.rad
+            );
+            if (!res) continue;
 
-        v2.set(this.pos, v2.add(this.pos, calculateSafeDisplacement()));
-        this.vel = v2.mul(this.vel, 0.93);
-        v2.set(this.pos, v2.add(this.pos, calculateSafeDisplacement()));
+            this.vel = v2.sub(this.vel, v2.mul(res.dir, 0.2));
+            loot.vel = v2.sub(loot.vel, v2.mul(res.dir, -0.2));
+            const vRelativeVelocity = v2.create(
+                this.vel.x - loot.vel.x,
+                this.vel.y - loot.vel.y
+            );
+
+            const speed =
+                vRelativeVelocity.x * res.dir.x + vRelativeVelocity.y * res.dir.y;
+            if (speed < 0) continue;
+
+            this.push(res.dir, -speed);
+            loot.push(res.dir, speed);
+        }
 
         let objs = this.game.grid.intersectCollider(this.collider);
 
@@ -228,34 +485,6 @@ export class Loot extends BaseGameObject {
                         v2.add(this.pos, v2.mul(collision.dir, collision.pen + 0.001))
                     );
                 }
-            } else if (obj.__type === ObjectType.Loot && obj.__id !== this.__id) {
-                const hash1 = `${this.__id} ${obj.__id}`;
-                const hash2 = `${obj.__id} ${this.__id}`;
-                if (collisions[hash1] || collisions[hash2]) continue;
-                if (!util.sameLayer(obj.layer, this.layer)) continue;
-
-                const res = coldet.intersectCircleCircle(
-                    this.pos,
-                    this.collider.rad,
-                    obj.pos,
-                    obj.collider.rad
-                );
-                if (!res) continue;
-                collisions[hash1] = collisions[hash2] = true;
-
-                this.vel = v2.sub(this.vel, v2.mul(res.dir, 0.2));
-                obj.vel = v2.sub(obj.vel, v2.mul(res.dir, -0.2));
-                const vRelativeVelocity = v2.create(
-                    this.vel.x - obj.vel.x,
-                    this.vel.y - obj.vel.y
-                );
-
-                const speed =
-                    vRelativeVelocity.x * res.dir.x + vRelativeVelocity.y * res.dir.y;
-                if (speed < 0) continue;
-
-                this.push(res.dir, -speed);
-                obj.push(res.dir, speed);
             }
         }
 
