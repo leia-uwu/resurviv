@@ -379,6 +379,9 @@ export class Player implements AbstractObject {
     dead: any;
     gunSwitchCooldown!: number;
 
+    interpTicker = 0;
+    oldInterpPos = v2.create(0, 0);
+
     constructor() {
         this.bodySprite.addChild(this.bodySubmergeSprite);
         this.handLSprite.addChild(this.handLSubmergeSprite);
@@ -469,6 +472,8 @@ export class Player implements AbstractObject {
         isNew: boolean,
         _ctx: Ctx
     ) {
+        this.interpTicker = 0;
+        this.oldInterpPos = v2.copy(this.netData.pos);
         this.netData.pos = v2.copy(data.pos);
         this.netData.dir = v2.copy(data.dir);
 
@@ -711,14 +716,25 @@ export class Player implements AbstractObject {
         activeId: number,
         preventInput: boolean,
         displayingStats: boolean,
-        isSpectating: boolean
+        isSpectating: boolean,
+        clientSideInterp: boolean,
+        serverDt: number
     ) {
         const curWeapDef = GameObjectDefs[this.netData.activeWeapon];
         const isActivePlayer = this.__id == activeId;
         const activePlayer = playerBarn.getPlayerById(activeId)!;
         this.posOld = v2.copy(this.pos);
         this.dirOld = v2.copy(this.dir);
-        this.pos = v2.copy(this.netData.pos);
+
+        if (clientSideInterp) {
+            this.interpTicker += dt;
+            const t = math.clamp(this.interpTicker / serverDt, 0, 1);
+            this.pos = math.v2lerp(t, this.oldInterpPos, this.netData.pos);
+        } else {
+            this.pos = v2.copy(this.netData.pos);
+        }
+
+        // this.pos = v2.copy(this.netData.pos);
         this.dir = v2.copy(this.netData.dir);
         this.layer = this.netData.layer;
         this.downed = this.netData.downed;
@@ -2355,7 +2371,9 @@ export class PlayerBarn {
         ui2Manager: UiManager2,
         preventInput: boolean,
         displayingStats: boolean,
-        isSpectating?: boolean
+        isSpectating: boolean,
+        clientSideInterp: boolean,
+        serverDt: number
     ) {
         // Update players
         const players = this.playerPool.getPool();
@@ -2375,7 +2393,9 @@ export class PlayerBarn {
                     activeId,
                     preventInput,
                     displayingStats,
-                    isSpectating!
+                    isSpectating!,
+                    clientSideInterp,
+                    serverDt
                 );
             }
         }

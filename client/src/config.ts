@@ -8,6 +8,7 @@ const defaultConfig = {
     soundVolume: 1,
     musicVolume: 1,
     highResTex: true,
+    clientSideInterp: false,
     showFps: false,
     screenShake: true,
     anonPlayerNames: false,

@@ -123,6 +123,8 @@ export class Game {
     seqSendTime!: number;
     pings!: unknown[];
     debugPingTime!: number;
+    lastUpdateTime = 0;
+    serverDt = 0;
 
     constructor(
         public pixi: PIXI.Application,
@@ -410,7 +412,9 @@ export class Game {
             this.ui2Manager,
             this.emoteBarn.wheelKeyTriggered,
             this.uiManager.displayingStats,
-            this.spectating
+            this.spectating,
+            this.config.get("clientSideInterp")!,
+            this.serverDt
         );
         this.updateAmbience();
 
@@ -990,6 +994,10 @@ export class Game {
     }
 
     processGameUpdate(msg: net.UpdateMsg) {
+        const now = Date.now();
+        this.serverDt = (now - this.lastUpdateTime) / 1000;
+        this.lastUpdateTime = now;
+
         const ctx: Ctx = {
             audioManager: this.audioManager,
             renderer: this.renderer,
