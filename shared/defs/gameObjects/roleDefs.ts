@@ -1,3 +1,64 @@
+import { util } from "../../utils/util";
+import { TeamColor } from "../maps/factionDefs";
+
+type BasicRoleWeapon = {
+    type: string;
+    ammo: number;
+    /** guns only, fill inventory to the max of the respective ammo */
+    fillInv?: boolean;
+};
+/**
+ * a role weapon not only needs to be conditionally defined depending on what team the player with the role is,
+ * but it also needs to be able to be randomly chosen to satisfy the requirements of certain roles like marksman
+ */
+type RoleWeapon = BasicRoleWeapon | ((teamcolor: TeamColor) => BasicRoleWeapon);
+
+function getTeamWeapon(
+    colorToWeaponMap: Record<TeamColor, BasicRoleWeapon>,
+    teamcolor: TeamColor
+): BasicRoleWeapon {
+    return colorToWeaponMap[teamcolor];
+}
+
+type DeepPartial<T> = T extends object
+    ? {
+          [P in keyof T]?: DeepPartial<T[P]>;
+      }
+    : T;
+
+type DefaultItems = {
+    weapons: [RoleWeapon, RoleWeapon, RoleWeapon, RoleWeapon];
+    backpack: string;
+    helmet: string;
+    chest: string;
+    scope: string;
+    inventory: {
+        "9mm": number;
+        "762mm": number;
+        "556mm": number;
+        "12gauge": number;
+        "50AE": number;
+        "308sub": number;
+        flare: number;
+        "45acp": number;
+        frag: number;
+        smoke: number;
+        strobe: number;
+        mirv: number;
+        snowball: number;
+        potato: number;
+        bandage: number;
+        healthkit: number;
+        soda: number;
+        painkiller: number;
+        "1xscope": number;
+        "2xscope": number;
+        "4xscope": number;
+        "8xscope": number;
+        "15xscope": number;
+    };
+};
+
 export interface RoleDef {
     readonly type: "role";
     announce: boolean;
@@ -15,6 +76,7 @@ export interface RoleDef {
         alive: string;
         dead: string;
     };
+    defaultItems?: DefaultItems;
     perks?: string[];
     mapIndicator?: {
         sprite: string;
@@ -30,6 +92,60 @@ export interface RoleDef {
     color?: number;
 }
 
+// const x = util.weightedRandom([
+//     {
+//         weapon: { type: "m870", ammo: 5},
+//         weight: 1
+//     },
+//     {
+//         weapon: { type: "mp220", ammo: 5},
+//         weight: 1
+//     },
+// ])
+// console.log(x.weapon);
+
+function createDefaultItems<T extends DefaultItems>(e: DeepPartial<T>): T {
+    const defaultItems: DefaultItems = {
+        weapons: [
+            { type: "", ammo: 0 },
+            { type: "", ammo: 0 },
+            { type: "fists", ammo: 0 },
+            { type: "", ammo: 0 }
+        ],
+        backpack: "backpack00",
+        helmet: "",
+        chest: "",
+        scope: "1xscope",
+        // perks: [] as Array<{ type: string; droppable?: boolean }>,
+        inventory: {
+            "9mm": 0,
+            "762mm": 0,
+            "556mm": 0,
+            "12gauge": 0,
+            "50AE": 0,
+            "308sub": 0,
+            flare: 0,
+            "45acp": 0,
+            frag: 0,
+            smoke: 0,
+            strobe: 0,
+            mirv: 0,
+            snowball: 0,
+            potato: 0,
+            bandage: 0,
+            healthkit: 0,
+            soda: 0,
+            painkiller: 0,
+            "1xscope": 1,
+            "2xscope": 0,
+            "4xscope": 0,
+            "8xscope": 0,
+            "15xscope": 0
+        }
+    };
+    return util.mergeDeep(defaultItems, e || {});
+}
+
 export const RoleDefs: Record<string, RoleDef> = {
     leader: {
         type: "role",
@@ -43,7 +159,36 @@ export const RoleDefs: Record<string, RoleDef> = {
             alive: "player-star.img",
             dead: "skull-leader.img"
         },
-        perks: ["leadership"]
+        perks: ["leadership"],
+        defaultItems: createDefaultItems({
+            weapons: [
+                (teamcolor: TeamColor) =>
+                    getTeamWeapon(
+                        {
+                            [TeamColor.RED]: { type: "m1014", ammo: 8, fillInv: true },
+                            [TeamColor.BLUE]: { type: "an94", ammo: 45, fillInv: true }
+                        },
+                        teamcolor
+                    ),
+                { type: "flare_gun", ammo: 1 },
+                (teamcolor: TeamColor) =>
+                    getTeamWeapon(
+                        {
+                            [TeamColor.RED]: { type: "machete_taiga", ammo: 0 },
+                            [TeamColor.BLUE]: { type: "kukri_trad", ammo: 0 }
+                        },
+                        teamcolor
+                    ),
+                { type: "", ammo: 0 }
+            ],
+            backpack: "backpack03",
+            helmet: "helmet04_leader",
+            chest: "chest03",
+            scope: "8xscope",
+            inventory: {
+                "8xscope": 1
+            }
+        })
     },
     lieutenant: {
         type: "role",

@@ -27,6 +27,7 @@ import type { GameSocketData } from "../../gameServer";
 import { IDAllocator } from "../../utils/IDAllocator";
 import type { Game } from "../game";
 import type { Group } from "../group";
+import type { Team } from "../team";
 import { WeaponManager, throwableList } from "../weaponManager";
 import { BaseGameObject, type DamageParams, type GameObject } from "./gameObject";
 import type { Loot } from "./loot";
@@ -81,23 +82,39 @@ export class PlayerBarn {
             }, 1);
         }
 
+        let team = this.game.getSmallestTeam();
+
         let group: Group | undefined;
+
         if (this.game.isTeamMode) {
-            group = this.game.groups.get(joinMsg.matchPriv);
-            if (!group) return;
+            const groupData = this.game.groupDatas.find(
+                (gd) => gd.hash == joinMsg.matchPriv
+            )!;
+            if (this.game.groups.has(groupData.hash)) {
+                //group already exists
+                group = this.game.groups.get(groupData.hash)!;
+                team = group.players[0].team;
+            } else {
+                group = this.game.addGroup(groupData.hash, groupData.autoFill);
+            }
         }
 
         const pos: Vec2 = this.game.map.getSpawnPos(group);
 
         const player = new Player(this.game, pos, socketData, joinMsg);
 
-        if (group) {
+        if (team && group) {
+            team.addPlayer(player);
             group.addPlayer(player);
+        } else if (!team && group) {
+            group.addPlayer(player);
+            player.teamId = group.groupId;
+        } else if (team && !group) {
+            team.addPlayer(player);
+            player.groupId = this.groupIdAllocator.getNextId();
         } else {
             player.groupId = this.groupIdAllocator.getNextId();
-            if (!this.game.map.factionMode) {
-                player.teamId = player.groupId;
-            }
+            player.teamId = player.groupId;
         }
 
         this.game.logger.log(`Player ${player.name} joined`);
@@ -111,11 +128,7 @@ export class PlayerBarn {
         this.game.pluginManager.emit("playerJoin", player);
 
         if (!this.game.started) {
-            if (!this.game.isTeamMode) {
-                this.game.started = this.game.trueAliveCount > 1;
-            } else {
-                this.game.started = this.game.trueGroupsAliveCount > 1;
-            }
+            this.game.started = this.game.contextManager.isGameStarted();
             if (this.game.started) {
                 this.game.gas.advanceGasStage();
                 this.game.planeBarn.schedulePlanes();
@@ -224,6 +237,7 @@ export class Player extends BaseGameObject {
     spectatorCountDirty = false;
     activeIdDirty = true;
 
+    team: Team | undefined = undefined;
     group: Group | undefined = undefined;
 
     /**
@@ -480,6 +494,39 @@ export class Player extends BaseGameObject {
 
                 this.helmet = "helmet03_bugler";
                 break;
+            case "leader":
+                break;
+        }
+
+        if (def.defaultItems) {
+            for (const [key, value] of Object.entries(def.defaultItems.inventory)) {
+                this.inventory[key] = value;
+            }
+
+            for (let i = 0; i < def.defaultItems.weapons.length; i++) {
+                const weaponOrWeaponFunc = def.defaultItems.weapons[i];
+                const trueWeapon =
+                    weaponOrWeaponFunc instanceof Function
+                        ? weaponOrWeaponFunc(this.teamId)
+                        : weaponOrWeaponFunc;
+
+                const gunDef = GameObjectDefs[trueWeapon.type] as GunDef;
+                if (gunDef && gunDef.type == "gun") {
+                    if (this.weapons[i].type) this.weaponManager.dropGun(i);
+
+                    if (trueWeapon.fillInv) {
+                        const ammoType = gunDef.ammo;
+                        this.inventory[ammoType] = GameConfig.bagSizes[ammoType][3];
+                    }
+                }
+                this.weapons[i].type = trueWeapon.type;
+                this.weapons[i].ammo = trueWeapon.ammo;
+            }
+
+            this.scope = def.defaultItems.scope;
+            this.helmet = def.defaultItems.helmet;
+            this.chest = def.defaultItems.chest;
+            this.backpack = def.defaultItems.backpack;
         }
 
         if (def.perks) {
@@ -499,6 +546,11 @@ export class Player extends BaseGameObject {
             droppable
         });
         this.perkTypes.push(type);
+
+        if (type == "leadership") {
+            this.boost = 100;
+            this.scale *= 1.25;
+        }
     }
 
     removePerk(type: string): void {
@@ -693,7 +745,7 @@ export class Player extends BaseGameObject {
             }
         }
 
-        if (this.boost > 0) {
+        if (this.boost > 0 && !this.hasPerk("leadership")) {
             this.boost -= 0.375 * dt;
         }
         if (this.boost > 0 && this.boost <= 25) this.health += 0.5 * dt;
@@ -1033,7 +1085,7 @@ export class Player extends BaseGameObject {
 
         if (playerBarn.aliveCountDirty || this._firstUpdate) {
             const aliveMsg = new net.AliveCountsMsg();
-            aliveMsg.teamAliveCounts.push(game.aliveCount);
+            this.game.contextManager.updateAliveCounts(aliveMsg.teamAliveCounts);
             msgStream.serializeMsg(net.MsgType.AliveCounts, aliveMsg);
         }
 
@@ -1131,12 +1183,13 @@ export class Player extends BaseGameObject {
 
         if (player.group) {
             if (
+                player.playerStatusDirty ||
                 this.playerStatusTicker >
-                net.getPlayerStatusUpdateRate(this.game.map.factionMode)
+                    net.getPlayerStatusUpdateRate(this.game.map.factionMode)
             ) {
-                const teamPlayers = player.group.getPlayers();
-                for (let i = 0; i < teamPlayers.length; i++) {
-                    const p = teamPlayers[i];
+                const players = this.game.contextManager.getPlayerStatusPlayers(player)!;
+                for (let i = 0; i < players.length; i++) {
+                    const p = players[i];
                     updateMsg.playerStatus.players.push({
                         hasData: p.playerStatusDirty,
                         pos: p.pos,
@@ -1152,7 +1205,7 @@ export class Player extends BaseGameObject {
         }
 
         if (player.groupStatusDirty) {
-            const teamPlayers = player.group!.getPlayers();
+            const teamPlayers = player.group!.players;
             for (const p of teamPlayers) {
                 updateMsg.groupStatus.players.push({
                     health: p.health,
@@ -1463,18 +1516,9 @@ export class Player extends BaseGameObject {
             stats = this.group.players;
         }
 
-        const groupAlives = [...this.game.groups.values()].filter(
-            (group) => !group.allDeadOrDisconnected
-        );
+        const aliveCount = this.game.contextManager.aliveCount();
 
-        const teamRank =
-            (!this.game.isTeamMode ? this.game.trueAliveCount : groupAlives.length) + 1;
-
-        if (
-            this.game.isTeamMode &&
-            !targetPlayer.group!.allDeadOrDisconnected &&
-            groupAlives.length > 1
-        ) {
+        if (this.game.contextManager.showStatsMsg(targetPlayer)) {
             for (const stat of stats) {
                 const statsMsg = new net.PlayerStatsMsg();
                 statsMsg.playerStats = stat;
@@ -1491,7 +1535,8 @@ export class Player extends BaseGameObject {
         } else {
             const gameOverMsg = new net.GameOverMsg();
             gameOverMsg.playerStats = stats;
-            gameOverMsg.teamRank = winningTeamId == targetPlayer.teamId ? 1 : teamRank;
+            gameOverMsg.teamRank =
+                winningTeamId == targetPlayer.teamId ? 1 : aliveCount + 1; //gameover msg sent after alive count updated
             gameOverMsg.teamId = targetPlayer.teamId;
             gameOverMsg.winningTeamId = winningTeamId;
             gameOverMsg.gameOver = !!winningTeamId;
@@ -1604,6 +1649,9 @@ export class Player extends BaseGameObject {
         );
         if (this.group) {
             this.group.checkPlayers();
+        }
+        if (this.team) {
+            this.team.livingPlayers.splice(this.team.livingPlayers.indexOf(this), 1);
         }
 
         //

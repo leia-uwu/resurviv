@@ -12,15 +12,13 @@ export class Group {
      * 1 is red
      * 2 is blue
      */
-    teamId: number;
     allDeadOrDisconnected = true; //only set to false when first player is added to the group
     players: Player[] = [];
     autoFill: boolean;
 
-    constructor(hash: string, groupId: number, teamId: number, autoFill: boolean) {
+    constructor(hash: string, groupId: number, autoFill: boolean) {
         this.hash = hash;
         this.groupId = groupId;
-        this.teamId = teamId;
         this.autoFill = autoFill;
     }
 
@@ -43,7 +41,6 @@ export class Group {
 
     addPlayer(player: Player) {
         player.groupId = this.groupId;
-        player.teamId = this.teamId;
         player.group = this;
         player.setGroupStatuses();
         player.playerStatusDirty = true;

@@ -219,23 +219,36 @@ export class GameServer {
                 const mode = Config.modes[body.gameModeIdx];
                 if (mode.teamMode > 1) {
                     let group: Group | undefined;
+                    let hash: string;
+                    let autoFill: boolean;
+
+                    const team = game.getSmallestTeam();
 
                     if (body.autoFill) {
                         group = [...game.groups.values()].filter((group) => {
-                            return group.autoFill && group.players.length < mode.teamMode;
+                            const sameTeamId =
+                                team && team.teamId == group.players[0].teamId;
+                            return (
+                                (team ? sameTeamId : true) &&
+                                group.autoFill &&
+                                group.players.length < mode.teamMode
+                            );
                         })[0];
                     }
 
-                    if (!group) {
-                        group = game.addGroup(
-                            randomBytes(20).toString("hex"),
-                            body.autoFill
-                        );
+                    if (group) {
+                        hash = group.hash;
+                        autoFill = group.autoFill;
+                    } else {
+                        hash = randomBytes(20).toString("hex");
+                        autoFill = body.autoFill;
                     }
 
-                    if (group) {
-                        response.data = group.hash;
-                    }
+                    response.data = hash;
+                    game.groupDatas.push({
+                        hash,
+                        autoFill
+                    });
                 }
             }
         } else {

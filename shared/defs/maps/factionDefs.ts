@@ -4,6 +4,12 @@ import { v2 } from "../../utils/v2";
 import type { MapDef } from "../mapDefs";
 import { Main } from "./baseDefs";
 
+export enum TeamColor {
+    // NONE = 0, //can be used ambiguously with code that runs the same regardless of team color
+    RED = 1,
+    BLUE = 2
+}
+
 const mapDef = {
     mapId: 3,
     desc: {
