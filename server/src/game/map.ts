@@ -655,7 +655,7 @@ export class GameMap {
         const densitySpawns = mapDef.mapGen.densitySpawns[0];
         for (const type in densitySpawns) {
             // TODO: figure out density spawn amount algorithm
-            const count = Math.round(densitySpawns[type] * 1.35);
+            const count = Math.round(densitySpawns[type] * (this.scale === "large" ? 1.35 : 0.9));
             this.genFromMapDef(type, count);
         }
     }

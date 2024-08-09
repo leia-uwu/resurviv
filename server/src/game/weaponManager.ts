@@ -163,6 +163,7 @@ export class WeaponManager {
         }
 
         player.freeSwitchTimer -= dt;
+        player.recoilTicker += dt;
 
         for (let i = 0; i < this.weapons.length; i++) {
             this.weapons[i].cooldown -= dt;

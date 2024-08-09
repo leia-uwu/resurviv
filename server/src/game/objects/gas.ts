@@ -159,7 +159,10 @@ export class Gas {
             this.radOld = this.currentRad;
 
             if (this.radNew > 0) {
-                this.radNew = this.currentRad * GameConfig.gas.widthDecay;
+                this.radNew =
+                    this.circleIdx < GameConfig.gas.firstMovingZone
+                        ? this.currentRad * GameConfig.gas.widthDecay
+                        : this.currentRad * GameConfig.gas.movingWidthDecay;
 
                 if (this.radNew < GameConfig.gas.widthMin) {
                     this.radNew = 0;
@@ -167,7 +170,17 @@ export class Gas {
 
                 this.posOld = v2.copy(this.posNew);
 
-                this.posNew = v2.add(this.posOld, util.randomPointInCircle(this.radNew));
+                if (this.circleIdx < GameConfig.gas.firstMovingZone) {
+                    this.posNew = v2.add(
+                        this.posOld,
+                        util.randomPointInCircle(this.radNew)
+                    );
+                } else {
+                    this.posNew = v2.add(
+                        this.posOld,
+                        util.randomPointOnCircle(this.radOld)
+                    );
+                }
 
                 const rad = this.radNew;
                 this.posNew = math.v2Clamp(

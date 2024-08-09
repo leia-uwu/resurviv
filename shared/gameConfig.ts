@@ -121,6 +121,8 @@ export const GameConfig = {
         gasTimeMin: 5,
         initWidth: 0.75,
         widthDecay: 0.5,
+        movingWidthDecay: 0.7,
+        firstMovingZone: 2,
         widthMin: 10,
         damageTickRate: 2,
         damage: [1.4, 2.2, 3.5, 7.5, 10, 14, 22, 22, 22]
@@ -145,7 +147,7 @@ export const GameConfig = {
         baseSwitchDelay: 0.25,
         freeSwitchCooldown: 1,
         headshotChance: 0.15,
-        moveSpeed: 12,
+        moveSpeed: 20,
         waterSpeedPenalty: 3,
         cookSpeedPenalty: 3,
         hasteSpeedBonus: 4.8,
@@ -231,7 +233,8 @@ export const GameConfig = {
         soundRangeMult: 2.5,
         soundRangeDelta: 0.25,
         soundRangeMax: 92,
-        fallOff: 0
+        fallOff: 0,
+        minSpawnDist: 300 //only applies to random drops on the same tick
     },
     airstrike: {
         actionOffset: 0,

@@ -54,22 +54,52 @@ export class PlaneBarn {
             }
         }
 
+        let numAirDropsToSendNow = 0;
         for (let i = 0; i < this.scheduledPlanes.length; i++) {
             const scheduledPlane = this.scheduledPlanes[i];
             scheduledPlane.time -= dt;
             if (scheduledPlane.time <= 0) {
                 this.scheduledPlanes.splice(i, 1);
-
+                i--;
                 switch (scheduledPlane.options.type) {
                     case GameConfig.Plane.Airdrop: {
-                        this.addAirdrop(
-                            v2.add(
-                                this.game.gas.posNew,
-                                util.randomPointInCircle(this.game.gas.radNew)
-                            )
-                        );
+                        if (scheduledPlane.options) numAirDropsToSendNow++;
                         break;
                     }
+                }
+            }
+        }
+        if (numAirDropsToSendNow > 0) {
+            let airdropPositions: Vec2[] = [];
+            for (let drop = 0; drop < numAirDropsToSendNow; drop++) {
+                let sent = false;
+                for (let attempt = 0; attempt < 100; attempt++) {
+                    const posToTest = v2.add(
+                        this.game.gas.posNew,
+                        util.randomPointInCircle(this.game.gas.radNew)
+                    );
+                    this.game.map.clampToMapBounds(posToTest, this.game.map.shoreInset);
+                    if (
+                        airdropPositions.every(
+                            (otherdrop) =>
+                                v2.distance(posToTest, otherdrop) >=
+                                GameConfig.airdrop.minSpawnDist
+                        )
+                    ) {
+                        airdropPositions.push(posToTest);
+                        this.addAirdrop(posToTest);
+                        sent = true;
+                        break;
+                    }
+                }
+                if (!sent) {
+                    const randomPos = v2.add(
+                        this.game.gas.posNew,
+                        util.randomPointInCircle(this.game.gas.radNew)
+                    );
+                    this.game.map.clampToMapBounds(randomPos, this.game.map.shoreInset);
+                    airdropPositions.push(randomPos);
+                    this.addAirdrop(randomPos);
                 }
             }
         }
