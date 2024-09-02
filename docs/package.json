@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "ts-node generatePages.ts && eleventy && ts-node cleanUp.ts"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^2.0.1",
+    "@types/node": "^20.14.15",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "@picocss/pico": "^2.0.6"
+  }
+}

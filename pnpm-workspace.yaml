@@ -2,4 +2,5 @@ packages:
   - 'server/'
   - 'shared/'
   - 'client/'
+  - 'docs/'
   - '!**dist/**'
