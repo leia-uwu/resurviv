@@ -25,7 +25,8 @@
       "suspicious": {
         "noDoubleEquals": "off",
         "noExplicitAny": "off",
-        "noPrototypeBuiltins": "off"
+        "noPrototypeBuiltins": "off",
+        "useAwait": "error"
       }
     }
   },

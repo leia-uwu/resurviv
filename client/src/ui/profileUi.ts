@@ -10,30 +10,19 @@ import { MenuModal } from "./menuModal";
 
 function createLoginOptions(
     parentElem: JQuery<HTMLElement>,
-    linkAccount: boolean | undefined,
-    account: Account,
     localization: Localization,
+    loginMethods: { method: string; linked: boolean }[],
 ) {
     const contentsElem = parentElem.find(".login-options-content");
     contentsElem.empty();
-    if (linkAccount) {
-        contentsElem.append(
-            $("<div/>", {
-                class: "account-login-desc",
-            }).append(
-                $("<p/>", {
-                    html: localization.translate("index-link-account-to"),
-                }),
-            ),
-        );
-    }
+
     const buttonParentElem = $("<div/>", {
         class: "account-buttons",
     });
     contentsElem.append(buttonParentElem);
     const addLoginOption = function (
         method: string,
-        linked: boolean,
+        _linked: boolean,
         onClick: () => void,
     ) {
         const el = $("<div/>", {
@@ -54,24 +43,18 @@ function createLoginOptions(
                     }),
                 ),
         );
-        if (linkAccount && linked) {
-            el.addClass("btn-login-linked");
-            el.find("span.login-button-name").html('<div class="icon"></div>');
-        } else {
-            el.click((_e) => {
-                onClick();
-            });
-        }
+        el.click((_e) => {
+            onClick();
+        });
         buttonParentElem.append(el);
     };
 
     // Define the available login methods
-    addLoginOption("twitch", account.profile.linkedTwitch, () => {
-        window.location.href = "/api/user/auth/twitch";
-    });
-    addLoginOption("discord", account.profile.linkedDiscord, () => {
-        window.location.href = "/api/user/auth/discord";
-    });
+    loginMethods.map(({ method, linked }) =>
+        addLoginOption(method, linked, () => {
+            window.location.href = `/api/user/auth/${method}`;
+        }),
+    );
 }
 
 export class ProfileUi {
@@ -297,7 +280,6 @@ export class ProfileUi {
             this.userSettingsModal!.hide();
             this.showLoginMenu({
                 modal: false,
-                link: true,
             });
             return false;
         });
@@ -368,7 +350,7 @@ export class ProfileUi {
         this.updateUserIcon();
     }
 
-    onItemsUpdated(items: Array<{ status: number }>) {
+    onItemsUpdated(items: Array<{ status: number }> = []) {
         let unconfirmedItemCount = 0;
         let unackedItemCount = 0;
         for (let i = 0; i < items.length; i++) {
@@ -404,11 +386,10 @@ export class ProfileUi {
         }
     }
 
-    showLoginMenu(opts: { modal?: boolean; link?: boolean }) {
+    showLoginMenu(opts: { modal?: boolean }) {
         opts = Object.assign(
             {
                 modal: false,
-                link: false,
             },
             opts,
         );
@@ -417,7 +398,19 @@ export class ProfileUi {
             : device.mobile
               ? this.loginOptionsModalMobile
               : this.loginOptionsModal;
-        createLoginOptions(modal!.selector, opts.link, this.account, this.localization);
+
+        const loginMethods = [
+            { method: "github", linked: this.account.profile.linkedGithub },
+            // { method: "discord", linked: this.account.profile.linkedDiscord },
+            // { method: "twitch", linked: this.account.profile.linkedTwitch }
+        ];
+
+        if (import.meta.env.DEV) {
+            loginMethods.push({ method: "mock", linked: false });
+        }
+
+        createLoginOptions(modal!.selector, this.localization, loginMethods);
+
         modal!.show();
     }
 

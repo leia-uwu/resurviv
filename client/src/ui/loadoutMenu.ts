@@ -3,14 +3,14 @@ import $ from "jquery";
 import { GameObjectDefs } from "../../../shared/defs/gameObjectDefs";
 import { EmoteCategory, type EmoteDef } from "../../../shared/defs/gameObjects/emoteDefs";
 import type { MeleeDef } from "../../../shared/defs/gameObjects/meleeDefs";
-import type { UnlockDef } from "../../../shared/defs/gameObjects/unlockDefs";
 import { EmoteSlot } from "../../../shared/gameConfig";
+import type { Crosshair, ItemStatus, Loadout } from "../../../shared/utils/helpers";
 import { util } from "../../../shared/utils/util";
 import type { Account } from "../account";
 import { crosshair } from "../crosshair";
 import { device } from "../device";
 import { helpers } from "../helpers";
-import loadout, { type ItemStatus, type Loadout } from "./loadouts";
+import loadout from "./loadouts";
 import type { Localization } from "./localization";
 import { MenuModal } from "./menuModal";
 import type { LoadoutDisplay } from "./opponentDisplay";
@@ -91,12 +91,12 @@ const sortTypes: Record<string, any> = {
     subcat: itemSort(sortSubcat),
 };
 
-interface Item {
+export interface Item {
     type: string;
     source: string;
-    ackd: number;
     timeAcquired: number;
     status?: ItemStatus;
+    ackd?: ItemStatus.Ackd;
 }
 interface ItemInfo {
     type: string;
@@ -246,7 +246,6 @@ export class LoadoutMenu {
         account.addEventListener("request", this.onRequest.bind(this));
         account.addEventListener("loadout", this.onLoadout.bind(this));
         account.addEventListener("items", this.onItems.bind(this));
-        account.addEventListener("pass", this.onPass.bind(this));
     }
 
     init() {
@@ -419,8 +418,8 @@ export class LoadoutMenu {
         }
     }
 
-    onItems(items: unknown[]) {
-        this.items = loadout.getUserAvailableItems(items) as unknown as Item[];
+    onItems(items: Item[]) {
+        this.items = loadout.getUserAvailableItems(items) as Item[];
         for (let i = 0; i < this.items.length; i++) {
             const item = this.items[i];
             if (
@@ -446,34 +445,6 @@ export class LoadoutMenu {
         if (this.active) {
             this.tryBeginConfirmingItems();
             this.selectCat(this.selectedCatIdx);
-        }
-
-        // Request the default unlock if we don't have it yet
-        if (this.account.loggedIn) {
-            if (
-                !this.items.find((x) => {
-                    return x.type == "unlock_new_account";
-                })
-            ) {
-                this.account.unlock("unlock_new_account");
-            }
-        }
-    }
-
-    onPass(pass: UnlockDef) {
-        // Show/hide the social media buttons based on whether we have
-        // unlocked them
-        const unlocks = ["facebook", "instagram", "youtube", "twitter"];
-        for (let i = 0; i < unlocks.length; i++) {
-            const unlockType = unlocks[i];
-            const hasUnlock = !!pass.unlocks[unlockType as keyof typeof pass.unlocks];
-            const el = $(`.customize-social-unlock[data-lock-reason='${unlockType}']`);
-            el.css({
-                display: hasUnlock ? "none" : "inline-block",
-            });
-            el.off("click").on("click", () => {
-                this.account.setPassUnlock(unlockType);
-            });
         }
     }
 
@@ -696,7 +667,7 @@ export class LoadoutMenu {
                 color: util.hexToInt(color),
                 size: Number(size.toFixed(2)),
                 stroke: Number(stroke.toFixed(2)),
-            };
+            } as unknown as Crosshair;
         } else {
             this.loadout[loadoutType as keyof Loadout] = this.selectedItem.type as any;
         }
@@ -1030,7 +1001,7 @@ export class LoadoutMenu {
                     color: 0xffffff,
                     size: 1,
                     stroke: 0,
-                };
+                } as unknown as Crosshair;
                 crosshair.setElemCrosshair(outerDiv, crosshairDef);
             }
 

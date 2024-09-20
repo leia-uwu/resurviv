@@ -1,4 +1,5 @@
-import type { TemplatedApp, WebSocket } from "uWebSockets.js";
+import type { Context, Hono } from "hono";
+import type { UpgradeWebSocket } from "hono/ws";
 import type {
     ClientToServerTeamMsg,
     RoomData,
@@ -8,7 +9,7 @@ import type {
     TeamStateMsg,
 } from "../../shared/net/team";
 import { math } from "../../shared/utils/math";
-import type { ApiServer } from "./apiServer";
+import type { ApiServer } from "./api/apiServer";
 import { Config } from "./config";
 
 export interface TeamSocketData {
@@ -63,58 +64,37 @@ export class TeamMenu {
 
     constructor(public server: ApiServer) {}
 
-    init(app: TemplatedApp) {
+    init(app: Hono, upgradeWebSocket: UpgradeWebSocket) {
         const teamMenu = this;
 
-        app.ws("/team_v2", {
-            idleTimeout: 30,
-            /**
-             * Upgrade the connection to WebSocket.
-             */
-            upgrade(res, req, context) {
-                res.onAborted((): void => {});
-
-                res.upgrade(
-                    {},
-                    req.getHeader("sec-websocket-key"),
-                    req.getHeader("sec-websocket-protocol"),
-                    req.getHeader("sec-websocket-extensions"),
-                    context,
-                );
-            },
-
-            /**
-             * Handle opening of the socket.
-             * @param socket The socket being opened.
-             */
-            open(socket: WebSocket<TeamSocketData>) {
-                socket.getUserData().sendMsg = (data) => socket.send(data, false, false);
-                socket.getUserData().closeSocket = () => socket.close();
-            },
-
-            /**
-             * Handle messages coming from the socket.
-             * @param socket The socket in question.
-             * @param message The message to handle.
-             */
-            message(socket: WebSocket<TeamSocketData>, message) {
-                teamMenu.handleMsg(message, socket.getUserData());
-            },
-
-            /**
-             * Handle closing of the socket.
-             * Called if player hits the leave button or if there's an error joining/creating a team
-             * @param socket The socket being closed.
-             */
-            close(socket: WebSocket<TeamSocketData>) {
-                const userData = socket.getUserData();
-                const room = teamMenu.rooms.get(userData.roomUrl);
-                if (room) {
-                    teamMenu.removePlayer(userData);
-                    teamMenu.sendRoomState(room);
-                }
-            },
-        });
+        app.get(
+            "/team_v2",
+            upgradeWebSocket((c) => {
+                // guh, i'm sure there is a better way;
+                const userDataMap = new Map<Context, TeamSocketData>();
+                return {
+                    onOpen(_evt, ws) {
+                        const userData = {} as TeamSocketData;
+                        userData.sendMsg = (data) => ws.send(data);
+                        userData.closeSocket = () => ws.close();
+                        userDataMap.set(c, userData);
+                    },
+                    onMessage(event, _ws) {
+                        const userData = userDataMap.get(c)!;
+                        teamMenu.handleMsg(event.data as string, userData);
+                    },
+                    onClose: (_ws) => {
+                        const userData = userDataMap.get(c)!;
+                        const room = teamMenu.rooms.get(userData.roomUrl);
+                        if (room) {
+                            teamMenu.removePlayer(userData);
+                            teamMenu.sendRoomState(room);
+                        }
+                        userDataMap.delete(c);
+                    },
+                };
+            }),
+        );
     }
 
     addRoom(roomUrl: string, initialRoomData: RoomData, roomLeader: RoomPlayer) {
@@ -216,10 +196,8 @@ export class TeamMenu {
         }
     }
 
-    async handleMsg(message: ArrayBuffer, localPlayerData: TeamSocketData) {
-        const parsedMessage: ClientToServerTeamMsg = JSON.parse(
-            new TextDecoder().decode(message),
-        );
+    async handleMsg(message: string, localPlayerData: TeamSocketData) {
+        const parsedMessage: ClientToServerTeamMsg = JSON.parse(message);
         const type = parsedMessage.type;
         let response: ServerToClientTeamMsg;
 

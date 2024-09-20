@@ -240,7 +240,7 @@ export class Building extends BaseGameObject {
             this.puzzleResetTimeout = setTimeout(
                 this.resetPuzzle.bind(this),
                 puzzleDef.errorResetDelay * 1000,
-            );
+            ) as NodeJS.Timeout;
         } else {
             this.puzzleResetTimeout = setTimeout(() => {
                 this.puzzleErrSeq++;
@@ -250,7 +250,7 @@ export class Building extends BaseGameObject {
                     puzzleDef.errorResetDelay * 1000,
                     this,
                 );
-            }, puzzleDef.pieceResetDelay * 1000);
+            }, puzzleDef.pieceResetDelay * 1000) as NodeJS.Timeout;
         }
     }
 

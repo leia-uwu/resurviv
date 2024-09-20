@@ -22,7 +22,6 @@ declare global {
         login: () => void;
         deleteAccount: () => void;
         deleteItems: () => void;
-        unlock: (item: string) => void;
         setQuest: (questType: string, idx: number) => void;
         refreshQuest: (idx: number) => void;
         setPassUnlock: (questType: string) => void;

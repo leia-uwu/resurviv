@@ -5,6 +5,7 @@ import { GameConfig } from "../../../shared/gameConfig";
 import type { MapMsg } from "../../../shared/net/mapMsg";
 import { type ObjectData, ObjectType } from "../../../shared/net/objectSerializeFns";
 import { collider } from "../../../shared/utils/collider";
+import type { Loadout } from "../../../shared/utils/helpers";
 import { math } from "../../../shared/utils/math";
 import { v2 } from "../../../shared/utils/v2";
 import type { Account } from "../account";
@@ -23,7 +24,7 @@ import { type Player, PlayerBarn } from "../objects/player";
 import { SmokeBarn } from "../objects/smoke";
 import { Renderer } from "../renderer";
 import type { LocalDataWithDirty } from "./../../../shared/net/updateMsg";
-import loadouts, { type Loadout } from "./loadouts";
+import loadouts from "./loadouts";
 
 export class LoadoutDisplay {
     active = false;

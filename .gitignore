@@ -6,6 +6,12 @@ resurviv-config.json
 # new
 survev-config.json
 
+# env file
+.env
+
+# sqlite db
+game.db
+
 # Compiled source
 dist/
 

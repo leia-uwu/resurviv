@@ -2,21 +2,37 @@
   "private": true,
   "scripts": {
     "build": "tsc",
-    "start:api": "NODE_ENV=production node --enable-source-maps dist/server/src/apiServer.js --api-server",
+    "start:api": "NODE_ENV=production bun run --enable-source-maps dist/server/src/api/index.js",
     "start:game": "NODE_ENV=production node --enable-source-maps dist/server/src/gameServer.js --game-server",
-    "start:dev": "NODE_ENV=production node --enable-source-maps dist/server/src/devServer.js",
-    "dev": "ts-node-dev --respawn --rs --transpile-only src/devServer.ts",
-    "dev:api": "ts-node-dev --respawn --rs --transpile-only src/apiServer.ts --api-server",
-    "dev:game": "ts-node-dev --respawn --rs --transpile-only src/gameServer.ts --game-server"
+    "dev": "concurrently \"pnpm run dev:api\" \"pnpm run dev:game\"",
+    "dev:api": "bun run --watch src/api/index.ts",
+    "dev:game": "ts-node-dev --respawn --rs --transpile-only src/gameServer.ts --game-server",
+    "db:generate": "drizzle-kit generate --config=src/api/drizzle.config.ts",
+    "db:migrate": "bun run ./src/api/db/migrate.ts",
+    "db:push": "drizzle-kit push --config=src/api/drizzle.config.ts",
+    "db:seed": "bun run src/api/db/seed.ts",
+    "db:studio": "drizzle-kit studio --config=src/api/drizzle.config.ts"
   },
   "dependencies": {
+    "@hono/zod-validator": "^0.2.2",
+    "arctic": "^1.9.2",
+    "drizzle-orm": "^0.33.0",
+    "hono": "^4.5.9",
+    "lucia": "^3.2.0",
     "nanotimer": "^0.3.15",
-    "ts-node-dev": "^2.0.0",
-    "typescript": "^5.6.2",
-    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.48.0"
+    "slugify": "^1.6.6",
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.48.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@libsql/client": "^0.10.0",
+    "@lucia-auth/adapter-drizzle": "^1.1.0",
+    "@types/bun": "^1.1.8",
     "@types/nanotimer": "^0.3.2",
-    "@types/node": "^20.16.5"
+    "@types/node": "^20.16.5",
+    "concurrently": "^8.2.2",
+    "drizzle-kit": "^0.24.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.6.2"
   }
 }

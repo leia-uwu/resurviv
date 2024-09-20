@@ -319,7 +319,7 @@ export class GameServer {
         }, 0);
     }
 
-    async fetchApiServer(route: string, body: object) {
+    fetchApiServer(route: string, body: object) {
         const url = `${Config.gameServer.apiServerUrl}/${route}`;
         const data = fetch(url, {
             body: JSON.stringify({

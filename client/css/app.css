@@ -2394,15 +2394,6 @@ a:active {
   display: none;
 }
 
-.account-login-desc {
-  padding-top: 18px;
-}
-
-.account-login-desc > p {
-  margin: auto;
-  text-align: center;
-}
-
 .account-link-desc {
   margin: 12px 0;
   padding-top: 18px;
@@ -2465,14 +2456,20 @@ a:active {
   left: 135%;
 }
 
-.btn-login-facebook {
+.btn-login-github {
+  background-color: #24292f;
+  border-bottom: 2px solid #1d1f21;
+  box-shadow: inset 0 -2px #1d1f21;
+}
+
+.btn-login-mock {
   background-color: #3b579d;
   border-bottom: 2px solid #253763;
   box-shadow: inset 0 -2px #253763;
 }
 
-.btn-login-facebook > .login-button-name > .icon {
-  background-image: url(/img/icon_facebook_reverse.png);
+.btn-login-github > .login-button-name > .icon {
+  background-image: url(/img/icon_github.svg);
 }
 
 .btn-login-google {
@@ -2503,17 +2500,6 @@ a:active {
 
 .btn-login-discord > .login-button-name > .icon {
   background-image: url(/img/icon_discord.png);
-}
-
-.btn-login-linked {
-  background-image: url(/img/gui/checked.svg);
-  background-position-x: 60%;
-  background-position-y: 50%;
-  background-repeat: no-repeat;
-  background-size: 22px;
-  color: inherit;
-  cursor: default;
-  filter: brightness(80%) !important;
 }
 
 .account-block {
