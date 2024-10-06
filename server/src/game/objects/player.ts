@@ -10,11 +10,14 @@ import {
     SCOPE_LEVELS,
     type ScopeDef,
 } from "../../../../shared/defs/gameObjects/gearDefs";
-import type { GunDef } from "../../../../shared/defs/gameObjects/gunDefs";
+import { type GunDef, GunDefs } from "../../../../shared/defs/gameObjects/gunDefs";
 import { type MeleeDef, MeleeDefs } from "../../../../shared/defs/gameObjects/meleeDefs";
 import type { OutfitDef } from "../../../../shared/defs/gameObjects/outfitDefs";
 import type { RoleDef } from "../../../../shared/defs/gameObjects/roleDefs";
-import type { ThrowableDef } from "../../../../shared/defs/gameObjects/throwableDefs";
+import {
+    type ThrowableDef,
+    ThrowableDefs,
+} from "../../../../shared/defs/gameObjects/throwableDefs";
 import { UnlockDefs } from "../../../../shared/defs/gameObjects/unlockDefs";
 import {
     type Action,
@@ -1670,6 +1673,13 @@ export class Player extends BaseGameObject {
                     emotePlayer.role == "leader" && emotePlayer.teamId === player.teamId;
                 const seePing =
                     (emote.isPing || emote.itemType) && (partOfGroup || isTeamLeader);
+                // HACK: Potato mode forces players to send potato emotes
+                if (
+                    this.game.map.potatoMode &&
+                    !emote.isPing &&
+                    emote.type !== "emote_loot"
+                )
+                    emote.type = "emote_potato";
                 if (seeNormalEmote || seePing) {
                     updateMsg.emotes.push(emote);
                 }
@@ -2287,6 +2297,11 @@ export class Player extends BaseGameObject {
             ) {
                 obj.onGoreRegionKill();
             }
+        }
+
+        // Potato mode swap
+        if (this.game.map.potatoMode && params.source instanceof Player) {
+            (params.source as Player).potatoModeWeaponSwitch(params.gameSourceType);
         }
 
         // Check for game over
@@ -3324,6 +3339,108 @@ export class Player extends BaseGameObject {
 
         if (reloading && this.weapons[this.curWeapIdx].ammo == 0) {
             this.weaponManager.tryReload();
+        }
+    }
+
+    static toAllowedPotatoModeList(
+        arr: [string, GunDef | MeleeDef | ThrowableDef][],
+        quality = false,
+    ) {
+        return arr
+            .filter(([_, def]) => {
+                if (quality) return !def.noPotatoSwap && def.quality === 1;
+                return !def.noPotatoSwap;
+            })
+            .map(([idString, _]) => idString);
+    }
+    static allowedPotatoModeWeapons = Object.freeze({
+        guns: Player.toAllowedPotatoModeList(Object.entries(GunDefs)),
+        guns_rare: Player.toAllowedPotatoModeList(Object.entries(GunDefs), true),
+        melees: Player.toAllowedPotatoModeList(Object.entries(MeleeDefs)),
+        melees_rare: Player.toAllowedPotatoModeList(Object.entries(MeleeDefs), true),
+        throwables: Player.toAllowedPotatoModeList(Object.entries(ThrowableDefs)),
+        throwables_rare: Player.toAllowedPotatoModeList(
+            Object.entries(ThrowableDefs),
+            true,
+        ),
+    });
+
+    potatoModeWeaponSwitch(weaponType: string | undefined) {
+        const slot = this.weapons.findIndex((w) => w.type === weaponType);
+
+        if (slot === -1) return;
+
+        let weapon: string | undefined;
+        let ammo: number = 0;
+        let isThrowable = false;
+
+        switch (GameConfig.WeaponType[slot]) {
+            case "gun":
+                weapon = util.pickRandomInArr(
+                    Player.allowedPotatoModeWeapons[
+                        this.hasPerk("rare_potato") ? "guns_rare" : "guns"
+                    ],
+                );
+                const gunDef = GunDefs[weapon];
+
+                ammo = gunDef.maxClip;
+
+                this.inventory[gunDef.ammo] = math.max(
+                    this.inventory[gunDef.ammo],
+                    gunDef.ammoSpawnCount - ammo,
+                );
+                this.inventoryDirty = true;
+
+                break;
+            case "melee":
+                weapon = util.pickRandomInArr(
+                    Player.allowedPotatoModeWeapons[
+                        this.hasPerk("rare_potato") ? "melees_rare" : "melees"
+                    ],
+                );
+                break;
+            case "throwable":
+                weapon = util.pickRandomInArr(
+                    Player.allowedPotatoModeWeapons[
+                        this.hasPerk("rare_potato") ? "throwables_rare" : "throwables"
+                    ],
+                );
+
+                ammo = math.max(
+                    this.inventory[weapon],
+                    Math.ceil(
+                        GameConfig.bagSizes[weapon][this.getGearLevel(this.backpack)] / 2,
+                    ),
+                );
+
+                isThrowable = true;
+                break;
+        }
+
+        if (weapon) {
+            if (isThrowable) {
+                this.inventory[weapon] = math.max(this.inventory[weapon], ammo);
+            } else {
+                this.weaponManager.setWeapon(slot, weapon, ammo);
+            }
+            const emote = new Emote(this.playerId, this.pos, "emote_loot", false);
+            emote.itemType = weapon;
+            this.game.playerBarn.emotes.push(emote);
+            this.shootHold = false;
+            this.clampInventory();
+            this.inventoryDirty = true;
+            this.setDirty();
+        }
+    }
+
+    clampInventory() {
+        for (const type of Object.keys(this.inventory)) {
+            if (!GameConfig.bagSizes[type]) continue;
+            this.inventory[type] = math.clamp(
+                this.inventory[type],
+                0,
+                GameConfig.bagSizes[type][this.getGearLevel(this.backpack)],
+            );
         }
     }
 

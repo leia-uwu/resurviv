@@ -1,5 +1,6 @@
 import { GameConfig } from "../../gameConfig";
 import { util } from "../../utils/util";
+import { v2 } from "../../utils/v2";
 import type { MapDef } from "../mapDefs";
 import { Main } from "./baseDefs";
 
@@ -140,10 +141,26 @@ const mapDef = {
             { name: "chest03", count: 1, weight: 1 },
             { name: "backpack03", count: 1, weight: 1 },
         ],
-        tier_ring_case: [{ name: "potato_cannon", count: 1, weight: 1 }],
-        tier_airdrop_rare: [{ name: "potato_cannon", count: 1, weight: 1 }],
+        tier_ring_case: [
+            { name: "potato_cannon", count: 1, weight: 1 },
+            { name: "spud_gun", count: 1, weight: 0.1 },
+        ],
+        tier_airdrop_rare: [
+            { name: "potato_cannon", count: 1, weight: 1 },
+            { name: "spud_gun", count: 1, weight: 0.1 },
+        ],
     },
     mapGen: {
+        customSpawnRules: {
+            locationSpawns: [
+                {
+                    type: "shilo_01",
+                    pos: v2.create(0.5, 0.5),
+                    rad: 150,
+                    retryOnFailure: true,
+                },
+            ],
+        },
         densitySpawns: [
             {
                 stone_01: 350,

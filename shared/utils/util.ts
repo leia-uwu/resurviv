@@ -62,6 +62,10 @@ export const util = {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     },
 
+    pickRandomInArr<T>(arr: T[]) {
+        return arr[Math.floor(Math.random() * arr.length)];
+    },
+
     // Uniformly distributed random point within circle
     // Taken from https://stackoverflow.com/questions/5837572/generate-a-random-point-within-a-circle-uniformly
     randomPointInCircle(rad: number) {
